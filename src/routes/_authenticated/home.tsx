@@ -3,6 +3,7 @@ import { Bell, ChevronRight } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { TrackRow } from "@/components/track-row";
+import { RecommendedForYou } from "@/components/recommended-for-you";
 import { demoTracks, madeForYou } from "@/lib/mock-data";
 import { usePlayer } from "@/lib/player";
 
@@ -43,6 +44,10 @@ function HomePage() {
           </button>
         </div>
       </div>
+
+      <Section title="Made for you">
+        <RecommendedForYou limit={10} />
+      </Section>
 
       <Section title="Trending in Zimbabwe">
         <div className="scrollbar-none -mx-5 flex snap-x snap-mandatory gap-3 overflow-x-auto px-5 pb-2">

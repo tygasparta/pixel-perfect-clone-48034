@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Mic, Search as SearchIcon } from "lucide-react";
 import { genres, moods, trendingSearches, demoTracks } from "@/lib/mock-data";
+import { RecommendedForYou } from "@/components/recommended-for-you";
 
 export const Route = createFileRoute("/_authenticated/search")({
   component: SearchPage,
@@ -20,6 +21,11 @@ function SearchPage() {
           className="w-full rounded-full bg-surface py-3.5 pl-11 pr-11 text-sm outline-none ring-1 ring-border focus:ring-primary"
         />
         <Mic className="absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-primary" />
+      </div>
+
+      <div className="mb-6">
+        <SectionTitle>Recommended for you</SectionTitle>
+        <RecommendedForYou limit={6} variant="list" />
       </div>
 
       <SectionTitle>Trending Searches</SectionTitle>
