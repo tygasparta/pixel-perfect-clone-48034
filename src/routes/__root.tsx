@@ -93,6 +93,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "Beatify — Zimbabwe's Music. The World's Stage." },
+      { name: "description", content: "Beatify is Zimbabwe's home for music. Stream, upload, connect. Discover Zimdancehall, Afro-Pop, Hip-Hop and the artists shaping the sound." },
+      { property: "og:description", content: "Beatify is Zimbabwe's home for music. Stream, upload, connect. Discover Zimdancehall, Afro-Pop, Hip-Hop and the artists shaping the sound." },
+      { name: "twitter:description", content: "Beatify is Zimbabwe's home for music. Stream, upload, connect. Discover Zimdancehall, Afro-Pop, Hip-Hop and the artists shaping the sound." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/c4d59919-07fc-48ab-9f1e-a4f655ddd2a4/id-preview-790cac4f--77c52d97-cee7-4c84-8720-28bf12a60768.lovable.app-1783374335087.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/c4d59919-07fc-48ab-9f1e-a4f655ddd2a4/id-preview-790cac4f--77c52d97-cee7-4c84-8720-28bf12a60768.lovable.app-1783374335087.png" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
