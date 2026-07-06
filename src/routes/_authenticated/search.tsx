@@ -23,6 +23,11 @@ function SearchPage() {
         <Mic className="absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-primary" />
       </div>
 
+      <div className="mb-6">
+        <SectionTitle>Recommended for you</SectionTitle>
+        <RecommendedForYou limit={6} variant="list" />
+      </div>
+
       <SectionTitle>Trending Searches</SectionTitle>
       <div className="mb-6 flex flex-wrap gap-2">
         {trendingSearches.map((q) => (
