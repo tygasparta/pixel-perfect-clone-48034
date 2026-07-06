@@ -3,6 +3,7 @@ import { Bell, ChevronRight } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { TrackRow } from "@/components/track-row";
+import { RecommendedForYou } from "@/components/recommended-for-you";
 import { demoTracks, madeForYou } from "@/lib/mock-data";
 import { usePlayer } from "@/lib/player";
 

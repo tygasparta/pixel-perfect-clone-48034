@@ -1,5 +1,7 @@
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import type { Track } from "./mock-data";
+import { recordPlay } from "./recommendations.functions";
+import { isDbTrackId } from "./track-mapper";
 
 type PlayerCtx = {
   current: Track | null;
@@ -47,6 +49,9 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
     setCurrent(track);
     if (q) setQueue(q);
     setPlaying(true);
+    if (isDbTrackId(track.id)) {
+      recordPlay({ data: { trackId: track.id } }).catch(() => {});
+    }
     requestAnimationFrame(() => {
       const el = audioRef.current;
       if (!el) return;
