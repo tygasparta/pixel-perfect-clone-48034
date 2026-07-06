@@ -2,6 +2,7 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import { Home, Search, Library, Upload, User, BarChart3, Wallet, Bell } from "lucide-react";
 import type { ReactNode } from "react";
 import { MiniPlayer } from "./mini-player";
+import { BeatifyLogo } from "./logo";
 
 const mobileTabs = [
   { to: "/home", label: "Home", icon: Home },
