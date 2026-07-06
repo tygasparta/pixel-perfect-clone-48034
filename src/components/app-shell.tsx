@@ -53,6 +53,13 @@ export function AppShell({ children }: { children: ReactNode }) {
 
       {/* Mobile shell */}
       <div className="mx-auto flex min-h-screen w-full max-w-[520px] flex-col bg-background lg:hidden">
+        <Link
+          to="/home"
+          aria-label="Beatify home"
+          className="pointer-events-auto fixed left-4 top-3 z-30 rounded-full bg-background/60 p-1 shadow-glow backdrop-blur"
+        >
+          <BeatifyLogo size={30} />
+        </Link>
         <main className="flex-1 pb-[152px]">{children}</main>
         <div className="fixed inset-x-0 bottom-0 z-40 mx-auto max-w-[520px]">
           <MiniPlayer />
