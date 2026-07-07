@@ -244,9 +244,25 @@ function DesktopHome() {
             <button className="text-xs font-semibold text-muted-foreground hover:text-foreground">See all</button>
           </div>
           <div className="rounded-2xl bg-surface/60 p-2 ring-1 ring-border">
-            {recent.map((t, i) => (
-              <TrackRow key={t.id} track={t} queue={recent} index={i} showDuration />
-            ))}
+            {trendingQ.isLoading ? (
+              Array.from({ length: 5 }).map((_, i) => (
+                <div key={i} className="flex items-center gap-3 px-2 py-2">
+                  <div className="h-11 w-11 animate-pulse rounded-lg bg-surface" />
+                  <div className="flex-1 space-y-2">
+                    <div className="h-3 w-1/3 animate-pulse rounded bg-surface" />
+                    <div className="h-2.5 w-1/4 animate-pulse rounded bg-surface" />
+                  </div>
+                </div>
+              ))
+            ) : recent.length === 0 ? (
+              <div className="px-4 py-8 text-center text-sm text-muted-foreground">
+                Nothing here yet. Play a few tracks to see them show up.
+              </div>
+            ) : (
+              recent.map((t, i) => (
+                <TrackRow key={t.id} track={t} queue={recent} index={i} showDuration />
+              ))
+            )}
           </div>
         </div>
         <div>
