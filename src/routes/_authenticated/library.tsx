@@ -26,22 +26,22 @@ function LibraryPage() {
 
   const header = (
     <>
-      <div className="mb-4 flex items-center justify-between lg:mb-6">
+      <div className="mb-4 flex items-center justify-between md:mb-6">
         <div>
-          <h1 className="text-2xl font-bold lg:text-4xl lg:font-black">Your Library</h1>
-          <p className="hidden text-sm text-muted-foreground lg:mt-1 lg:block">
+          <h1 className="text-2xl font-bold md:text-4xl md:font-black">Your Library</h1>
+          <p className="hidden text-sm text-muted-foreground md:mt-1 md:block">
             {collections.length} collections · {demoTracks.length} tracks
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <button className="hidden items-center gap-1.5 rounded-full bg-surface px-3 py-1.5 text-xs font-semibold ring-1 ring-border hover:bg-surface-2 lg:inline-flex">
+          <button className="hidden items-center gap-1.5 rounded-full bg-surface px-3 py-1.5 text-xs font-semibold ring-1 ring-border hover:bg-surface-2 md:inline-flex">
             <Plus className="h-3.5 w-3.5" /> New playlist
           </button>
           <SearchIcon className="h-5 w-5 text-muted-foreground" />
         </div>
       </div>
 
-      <div className="scrollbar-none -mx-5 mb-6 flex gap-2 overflow-x-auto px-5 lg:-mx-0 lg:px-0">
+      <div className="scrollbar-none -mx-5 mb-6 flex gap-2 overflow-x-auto px-5 md:-mx-0 md:px-0">
         {tabs.map((t) => (
           <button
             key={t}
@@ -60,11 +60,11 @@ function LibraryPage() {
   );
 
   return (
-    <div className="px-5 pt-14 lg:px-10 lg:pt-8">
+    <div className="px-5 pt-14 md:px-10 md:pt-8">
       {header}
 
       {/* Mobile / tablet stacked */}
-      <div className="lg:hidden">
+      <div className="md:hidden">
         <div className="space-y-2">
           {collections.map((r) => {
             const Icon = r.icon;
@@ -95,7 +95,7 @@ function LibraryPage() {
       </div>
 
       {/* Desktop grid + track table */}
-      <div className="hidden lg:block">
+      <div className="hidden md:block">
         <section className="mb-10">
           <h2 className="mb-4 text-lg font-bold">Collections</h2>
           <div className="grid grid-cols-2 gap-4 xl:grid-cols-4 2xl:grid-cols-5">

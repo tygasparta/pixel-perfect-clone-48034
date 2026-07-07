@@ -32,25 +32,25 @@ function AnalyticsPage() {
   ];
 
   return (
-    <div className="px-5 pt-14 lg:px-10 lg:pt-8">
-      <div className="mb-6 flex items-center gap-3 lg:mb-8">
+    <div className="px-5 pt-14 md:px-10 md:pt-8">
+      <div className="mb-6 flex items-center gap-3 md:mb-8">
         <Link
           to="/profile"
-          className="grid h-10 w-10 place-items-center rounded-full bg-surface lg:hidden"
+          className="grid h-10 w-10 place-items-center rounded-full bg-surface md:hidden"
         >
           <ChevronLeft className="h-5 w-5" />
         </Link>
         <div className="min-w-0">
-          <h1 className="text-xl font-bold lg:text-3xl lg:font-black">Analytics Overview</h1>
-          <p className="text-xs text-muted-foreground lg:text-sm">May 1 – May 31, 2026</p>
+          <h1 className="text-xl font-bold md:text-3xl md:font-black">Analytics Overview</h1>
+          <p className="text-xs text-muted-foreground md:text-sm">May 1 – May 31, 2026</p>
         </div>
-        <div className="ml-auto hidden gap-2 lg:flex">
+        <div className="ml-auto hidden gap-2 md:flex">
           <button className="rounded-full bg-surface px-4 py-1.5 text-xs font-semibold ring-1 ring-border">Export CSV</button>
           <button className="rounded-full bg-primary px-4 py-1.5 text-xs font-semibold text-primary-foreground">Share report</button>
         </div>
       </div>
 
-      <div className="mb-4 flex gap-2 overflow-x-auto scrollbar-none lg:mb-6">
+      <div className="mb-4 flex gap-2 overflow-x-auto scrollbar-none md:mb-6">
         {tabs.map((t, i) => (
           <button
             key={t}
@@ -64,17 +64,17 @@ function AnalyticsPage() {
       </div>
 
       {/* Stats: 3 up on mobile, 4 up on desktop with icons */}
-      <div className="mb-6 grid grid-cols-3 gap-2.5 lg:grid-cols-4 lg:gap-4">
+      <div className="mb-6 grid grid-cols-3 gap-2.5 md:grid-cols-4 md:gap-4">
         {stats.slice(0, 3).map((s) => (
           <Stat key={s.label} {...s} />
         ))}
-        <div className="hidden lg:block">
+        <div className="hidden md:block">
           <Stat {...stats[3]} />
         </div>
       </div>
 
       {/* Mobile: chart + top songs stacked */}
-      <div className="lg:hidden">
+      <div className="md:hidden">
         <div className="mb-6 rounded-2xl bg-surface p-4">
           <div className="mb-3 text-sm font-semibold">Streams Over Time</div>
           <StreamChart path={path} />
@@ -85,7 +85,7 @@ function AnalyticsPage() {
       </div>
 
       {/* Desktop: chart left + top songs right, cities row */}
-      <div className="hidden lg:grid lg:grid-cols-3 lg:gap-6">
+      <div className="hidden md:grid md:grid-cols-3 md:gap-6">
         <section className="col-span-2 rounded-2xl bg-surface/60 p-6 ring-1 ring-border">
           <div className="mb-4 flex items-baseline justify-between">
             <div>
@@ -204,13 +204,13 @@ function Bar({ pct }: { pct: number }) {
 
 function Stat({ label, value, delta, icon: Icon }: { label: string; value: string; delta: string; icon?: typeof TrendingUp }) {
   return (
-    <div className="rounded-2xl bg-surface p-3 lg:p-5 lg:ring-1 lg:ring-border">
+    <div className="rounded-2xl bg-surface p-3 md:p-5 md:ring-1 md:ring-border">
       <div className="flex items-center justify-between">
-        <div className="text-[10px] uppercase tracking-wide text-muted-foreground lg:text-xs">{label}</div>
-        {Icon && <Icon className="hidden h-4 w-4 text-primary lg:block" />}
+        <div className="text-[10px] uppercase tracking-wide text-muted-foreground md:text-xs">{label}</div>
+        {Icon && <Icon className="hidden h-4 w-4 text-primary md:block" />}
       </div>
-      <div className="mt-1 text-lg font-bold lg:mt-2 lg:text-3xl lg:font-black">{value}</div>
-      <div className="text-[10px] font-semibold text-emerald-400 lg:text-xs">{delta}</div>
+      <div className="mt-1 text-lg font-bold md:mt-2 md:text-3xl md:font-black">{value}</div>
+      <div className="text-[10px] font-semibold text-emerald-400 md:text-xs">{delta}</div>
     </div>
   );
 }
