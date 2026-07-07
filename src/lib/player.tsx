@@ -28,6 +28,7 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
   const [isPlaying, setPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     const el = audioRef.current;
