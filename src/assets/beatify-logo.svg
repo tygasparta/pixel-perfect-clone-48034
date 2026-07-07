@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 360" fill="none">
+  <g>
+    <circle cx="130" cy="110" r="82" stroke="#F0512B" stroke-width="20" fill="none"/>
+    <circle cx="138" cy="123" r="46" fill="#F0512B"/>
+    <rect x="110" y="35" width="22" height="105" rx="6" fill="#F0512B"/>
+    <path d="M132 35 C 162 39, 168 57, 148 71 L 132 71 Z" fill="#F0512B"/>
+  </g>
+  <text x="130" y="310" text-anchor="middle" font-family="'Inter', system-ui, sans-serif" font-weight="800" font-size="86" fill="#F0512B" letter-spacing="-3">beatify</text>
+  <text x="232" y="248" font-family="system-ui, sans-serif" font-size="18" fill="#F0512B" font-weight="700">™</text>
+</svg>

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <!-- Outer ring -->
+  <circle cx="100" cy="105" r="82" stroke="#F0512B" stroke-width="20" fill="none"/>
+  <!-- b bowl (solid disc) -->
+  <circle cx="108" cy="118" r="46" fill="#F0512B"/>
+  <!-- b stem -->
+  <rect x="80" y="30" width="22" height="105" rx="6" fill="#F0512B"/>
+  <!-- Note flag on top of stem -->
+  <path d="M102 30 C 132 34, 138 52, 118 66 L 102 66 Z" fill="#F0512B"/>
+</svg>
