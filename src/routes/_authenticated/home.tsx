@@ -8,7 +8,7 @@ import { RecommendedForYou } from "@/components/recommended-for-you";
 import { SearchCommand } from "@/components/search-command";
 import { demoTracks, madeForYou, genres, type Track } from "@/lib/mock-data";
 import { usePlayer } from "@/lib/player";
-import { getTrendingTracks, getNewReleases } from "@/lib/catalog.functions";
+import { getTrendingTracks, getNewReleases, getRecentlyPlayed } from "@/lib/catalog.functions";
 import { dbTrackToTrack } from "@/lib/track-mapper";
 
 export const Route = createFileRoute("/_authenticated/home")({
