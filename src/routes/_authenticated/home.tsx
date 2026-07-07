@@ -235,7 +235,6 @@ function DesktopHome() {
           empty="No new releases yet."
         />
       </DesktopRow>
-      </DesktopRow>
 
       {/* Genres + Recent listening */}
       <section className="grid grid-cols-3 gap-6 px-10 pt-2">
