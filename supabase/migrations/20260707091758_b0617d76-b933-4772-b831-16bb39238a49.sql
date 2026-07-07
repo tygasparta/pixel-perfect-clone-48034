@@ -1,0 +1,1 @@
+CREATE POLICY "Users read own plays" ON public.plays FOR SELECT TO authenticated USING (user_id = auth.uid());
