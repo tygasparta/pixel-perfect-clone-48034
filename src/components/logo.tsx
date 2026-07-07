@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
-import logoFull from "@/assets/beatify-logo.svg";
-import logoMark from "@/assets/beatify-mark.svg";
+import logoFull from "@/assets/beatify-logo.png";
+import logoMark from "@/assets/beatify-mark.png";
 
 type Props = {
   size?: number;
