@@ -192,20 +192,7 @@ function DesktopHome() {
       <section className="px-10 pt-8">
         <div className="grid grid-cols-2 gap-3 xl:grid-cols-3">
           {quickPicks.map((t) => (
-            <button
-              key={t.id}
-              onClick={() => play(t, quickPicks)}
-              className="group flex items-center gap-3 overflow-hidden rounded-xl bg-surface/70 pr-4 ring-1 ring-border transition hover:bg-surface"
-            >
-              <img src={t.cover} alt="" className="h-16 w-16 shrink-0 object-cover" />
-              <div className="min-w-0 flex-1 text-left">
-                <div className="truncate text-sm font-bold">{t.title}</div>
-                <div className="truncate text-[11px] text-muted-foreground">{t.artist}</div>
-              </div>
-              <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground opacity-0 shadow-glow transition group-hover:opacity-100">
-                <Play className="h-4 w-4" fill="currentColor" />
-              </span>
-            </button>
+            <QuickPickTile key={t.id} track={t} queue={quickPicks} />
           ))}
         </div>
       </section>
