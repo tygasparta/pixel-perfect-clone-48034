@@ -13,7 +13,7 @@ function SearchPage() {
   ).slice(0, 6);
 
   return (
-    <div className="px-5 pt-14">
+    <div className="mx-auto max-w-3xl px-5 pt-14 md:px-8 md:pt-10">
       <div className="relative mb-6">
         <SearchIcon className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <input

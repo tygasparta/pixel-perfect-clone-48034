@@ -27,7 +27,7 @@ function HomePage() {
   const newReleases = demoTracks.slice(3, 6);
 
   return (
-    <div className="px-5 pt-14">
+    <div className="mx-auto max-w-3xl px-5 pt-14 md:px-8 md:pt-10">
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">

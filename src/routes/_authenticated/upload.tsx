@@ -202,7 +202,7 @@ function UploadPage() {
   const audioLimitLabel = `MP3/WAV/FLAC/AAC/M4A/OGG · up to ${fmtMB(UPLOAD_LIMITS.audio.maxBytes)} · ${UPLOAD_LIMITS.audio.minDurationSec}s–${Math.floor(UPLOAD_LIMITS.audio.maxDurationSec / 60)}min`;
 
   return (
-    <div className="px-5 pt-14">
+    <div className="mx-auto max-w-3xl px-5 pt-14 md:px-8 md:pt-10">
       <h1 className="mb-2 text-2xl font-bold">Upload Your Music</h1>
       <p className="mb-6 text-sm text-muted-foreground">Distribute your track worldwide from Beatify.</p>
 

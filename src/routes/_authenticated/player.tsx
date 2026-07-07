@@ -100,7 +100,7 @@ function PlayerPage() {
   return (
     <div className="relative min-h-screen bg-background bg-gradient-hero">
       {/* Mobile: single column */}
-      <div className="mx-auto flex min-h-screen max-w-[520px] flex-col px-5 pb-6 pt-14 lg:hidden">
+      <div className="mx-auto flex min-h-screen max-w-[520px] flex-col px-5 pb-6 pt-14 md:hidden">
         <div className="mb-6 flex items-center justify-between">
           <button onClick={() => navigate({ to: "/home" })} className="grid h-10 w-10 place-items-center rounded-full hover:bg-white/5">
             <ChevronDown className="h-6 w-6" />
@@ -145,7 +145,7 @@ function PlayerPage() {
       </div>
 
       {/* Desktop: split-screen with cover / meta+controls / queue */}
-      <div className="hidden lg:block">
+      <div className="hidden md:block">
         <button
           onClick={() => navigate({ to: "/home" })}
           className="absolute right-6 top-6 z-10 grid h-10 w-10 place-items-center rounded-full bg-surface-2/70 backdrop-blur hover:bg-surface-2"

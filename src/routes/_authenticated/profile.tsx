@@ -45,7 +45,7 @@ function ProfilePage() {
   ];
 
   return (
-    <div className="px-5 pt-14">
+    <div className="mx-auto max-w-3xl px-5 pt-14 md:px-8 md:pt-10">
       <h1 className="mb-6 text-2xl font-bold">Profile</h1>
       <div className="mb-6 flex items-center gap-3">
         <div className="grid h-14 w-14 place-items-center rounded-full bg-gradient-primary text-xl font-black text-primary-foreground shadow-glow">

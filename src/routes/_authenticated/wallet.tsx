@@ -7,7 +7,7 @@ export const Route = createFileRoute("/_authenticated/wallet")({
 
 function WalletPage() {
   return (
-    <div className="px-5 pt-14">
+    <div className="mx-auto max-w-3xl px-5 pt-14 md:px-8 md:pt-10">
       <div className="mb-6 flex items-center gap-3">
         <Link to="/profile" className="grid h-10 w-10 place-items-center rounded-full bg-surface">
           <ChevronLeft className="h-5 w-5" />

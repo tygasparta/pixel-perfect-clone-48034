@@ -33,9 +33,9 @@ export function AppShell({ children }: { children: ReactNode }) {
   if (isPlayer) return <>{children}</>;
 
   return (
-    <div className="min-h-screen bg-background lg:flex lg:min-h-screen lg:flex-col">
+    <div className="min-h-screen bg-background md:flex md:min-h-screen md:flex-col">
       {/* Desktop shell */}
-      <div className="hidden lg:flex lg:min-h-screen lg:flex-1">
+      <div className="hidden md:flex md:min-h-screen md:flex-1">
         <aside className="sticky top-0 flex h-screen w-64 shrink-0 flex-col gap-2 border-r border-border/60 bg-surface/40 px-4 py-6">
           <Link to="/home" className="mb-4 flex items-center gap-2 px-2">
             <BeatifyLogo size={36} withWordmark wordmarkClassName="text-xl" />
@@ -52,7 +52,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       </div>
 
       {/* Mobile shell */}
-      <div className="mx-auto flex min-h-screen w-full max-w-[520px] flex-col bg-background lg:hidden">
+      <div className="mx-auto flex min-h-screen w-full max-w-[520px] flex-col bg-background md:hidden">
         <Link
           to="/home"
           aria-label="Beatify home"
@@ -87,7 +87,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       </div>
 
       {/* Desktop persistent mini-player docked bottom, offset by sidebar */}
-      <div className="fixed inset-x-0 bottom-0 z-40 hidden lg:block lg:pl-64">
+      <div className="fixed inset-x-0 bottom-0 z-40 hidden md:block md:pl-64">
         <MiniPlayer />
       </div>
     </div>
