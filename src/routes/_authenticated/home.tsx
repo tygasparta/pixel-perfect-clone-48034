@@ -156,13 +156,7 @@ function DesktopHome() {
             <NavArrow dir="left" />
             <NavArrow dir="right" />
           </div>
-          <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <input
-              placeholder="Search songs, artists, albums…"
-              className="h-11 w-full rounded-full bg-surface/80 pl-11 pr-4 text-sm outline-none ring-1 ring-border focus:ring-primary/60"
-            />
-          </div>
+          <SearchCommand className="flex-1 max-w-md" />
           <div className="flex items-center gap-3">
             <button className="relative grid h-10 w-10 place-items-center rounded-full bg-surface ring-1 ring-border">
               <Bell className="h-4 w-4" />
