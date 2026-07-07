@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
-import logoMark from "@/assets/beatify-mark.png";
+import logoMark from "@/assets/beatify-mark.svg";
 
 export const Route = createFileRoute("/onboarding")({
   ssr: false,
