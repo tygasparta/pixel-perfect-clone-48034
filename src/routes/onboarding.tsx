@@ -128,12 +128,22 @@ function Onboarding() {
             className="flex flex-col items-center"
           >
             <motion.div
-              className="mb-10 flex h-32 w-32 items-center justify-center rounded-[2rem] bg-white/10 backdrop-blur-xl ring-1 ring-white/15"
+              className="mb-10 flex h-32 w-32 items-center justify-center rounded-[2rem] bg-white/10 p-5 backdrop-blur-xl ring-1 ring-white/15"
               animate={{ rotate: [0, -3, 3, 0] }}
               transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
             >
-              <Icon className="h-14 w-14 text-white" strokeWidth={1.6} />
+              {i === slides.length - 1 ? (
+                <img
+                  src={logoMark}
+                  alt="Beatify"
+                  className="h-full w-full object-contain drop-shadow-[0_6px_24px_rgba(255,68,51,0.6)]"
+                  draggable={false}
+                />
+              ) : (
+                <Icon className="h-14 w-14 text-white" strokeWidth={1.6} />
+              )}
             </motion.div>
+
             <h1 className="mb-4 text-3xl font-black leading-tight tracking-tight">
               {slide.title}
             </h1>
