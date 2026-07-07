@@ -98,11 +98,15 @@ function AuthPage() {
         <div className="absolute inset-0 bg-gradient-to-tr from-primary/20 via-transparent to-transparent" />
       </div>
 
-      <div className="relative z-10 flex min-h-screen flex-col px-6 pb-10 pt-14 safe-area">
+      <div className="relative z-10 flex min-h-screen flex-col px-6 pb-10 pt-6 safe-area">
         {mode === "welcome" ? (
           <>
+            {/* Top-left brand mark */}
+            <div className="flex items-center">
+              <BeatifyLogo size={64} className="drop-shadow-[0_6px_24px_rgba(255,68,51,0.5)]" />
+            </div>
+
             <div className="flex-1 flex flex-col justify-end">
-              <BeatifyLogo size={88} className="mb-6" />
               <h1 className="text-5xl font-black leading-[0.95] tracking-tight">
                 Welcome to<br />
                 <span className="text-gradient-primary">Beatify</span>
@@ -112,6 +116,7 @@ function AuthPage() {
                 Grow your music journey.
               </p>
             </div>
+
 
             <div className="mt-10 space-y-3">
               <button
