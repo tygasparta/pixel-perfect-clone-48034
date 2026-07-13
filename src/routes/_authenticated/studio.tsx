@@ -369,33 +369,77 @@ function StudioPage() {
           )}
           <button
             onClick={() => setCollapsed(!collapsed)}
+            title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+            aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
             className="grid h-8 w-8 place-items-center rounded-lg text-white/60 hover:bg-white/5 hover:text-white"
           >
-            <Menu className="h-4 w-4" />
+            {collapsed ? <PanelLeftOpen className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />}
           </button>
         </div>
-        <nav className="flex-1 overflow-y-auto py-3">
-          {SIDEBAR.map((item) => {
-            const Icon = item.icon;
-            const active = item.active;
+        <nav className="flex-1 overflow-y-auto py-2">
+          {SIDEBAR_GROUPS.map((group) => {
+            const isOpen = collapsed ? true : openGroups[group.id];
             return (
-              <button
-                key={item.label}
-                onClick={() => !active && navigate({ to: item.to as any, search: item.tab ? { tab: item.tab } : undefined as any })}
-                className={cn(
-                  "group relative flex w-full items-center gap-3 px-3 py-2.5 text-[13px] font-medium transition",
-                  active ? "text-white" : "text-white/55 hover:text-white hover:bg-white/[0.03]"
+              <div key={group.id} className="mb-1">
+                {!collapsed && (
+                  <button
+                    onClick={() => toggleGroup(group.id)}
+                    aria-expanded={isOpen}
+                    className="flex w-full items-center justify-between gap-2 px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-white/35 hover:text-white/70 transition"
+                  >
+                    <span>{group.label}</span>
+                    <ChevronDown
+                      className={cn(
+                        "h-3 w-3 transition-transform duration-200",
+                        !isOpen && "-rotate-90"
+                      )}
+                    />
+                  </button>
                 )}
-              >
-                {active && (
-                  <motion.span
-                    layoutId="studio-active"
-                    className="absolute inset-y-1 left-0 w-[3px] rounded-r-full bg-[#FF4433] shadow-[0_0_18px_#FF4433]"
-                  />
-                )}
-                <Icon className={cn("h-[18px] w-[18px] shrink-0", active && "text-[#FF4433]")} strokeWidth={active ? 2.5 : 2} />
-                {!collapsed && <span>{item.label}</span>}
-              </button>
+                {collapsed && <div className="mx-3 my-2 h-px bg-white/[0.05]" />}
+                <AnimatePresence initial={false}>
+                  {isOpen && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
+                      className="overflow-hidden"
+                    >
+                      {group.items.map((item) => {
+                        const Icon = item.icon;
+                        const active = !!item.active;
+                        return (
+                          <button
+                            key={item.label}
+                            onClick={() =>
+                              !active &&
+                              navigate({ to: item.to as any, search: item.tab ? ({ tab: item.tab } as any) : (undefined as any) })
+                            }
+                            title={collapsed ? item.label : undefined}
+                            className={cn(
+                              "group relative flex w-full items-center gap-3 px-3 py-2 text-[13px] font-medium transition",
+                              active ? "text-white" : "text-white/55 hover:text-white hover:bg-white/[0.03]"
+                            )}
+                          >
+                            {active && (
+                              <motion.span
+                                layoutId="studio-active"
+                                className="absolute inset-y-1 left-0 w-[3px] rounded-r-full bg-[#FF4433] shadow-[0_0_18px_#FF4433]"
+                              />
+                            )}
+                            <Icon
+                              className={cn("h-[18px] w-[18px] shrink-0", active && "text-[#FF4433]")}
+                              strokeWidth={active ? 2.5 : 2}
+                            />
+                            {!collapsed && <span className="truncate">{item.label}</span>}
+                          </button>
+                        );
+                      })}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
             );
           })}
         </nav>
