@@ -21,6 +21,7 @@ type NavItem = {
   icon: typeof Home;
   search?: { tab?: LibraryTab; playlist?: string };
   matchSearch?: { tab?: LibraryTab; playlist?: string };
+  activeWhen?: (searchStr: string) => boolean;
 };
 
 const mobileTabs: readonly NavItem[] = [
@@ -33,8 +34,8 @@ const mobileTabs: readonly NavItem[] = [
 
 const desktopPrimary: readonly NavItem[] = [
   { to: "/home", label: "Home", icon: Home },
-  { to: "/search", label: "Browse", icon: Compass },
-  { to: "/search", label: "Search", icon: Search },
+  { to: "/search", label: "Browse", icon: Compass, activeWhen: (s) => !/[?&]q=/.test(s) },
+  { to: "/search", label: "Search", icon: Search, activeWhen: (s) => /[?&]q=/.test(s) },
 ];
 
 const desktopLibrary: readonly NavItem[] = [
