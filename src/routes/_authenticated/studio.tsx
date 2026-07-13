@@ -12,7 +12,7 @@ import {
   Share2, Image as ImageIcon, Sparkles, CheckCircle2, AlertCircle,
   GripVertical, X, Music, Loader2, Globe, DollarSign, Lock, Radio,
   PenLine, Users2, ShieldCheck, Package, Star, Mic2, Headphones,
-  Menu, Plus, Check,
+  Menu, Plus, Check, ChevronDown, PanelLeftClose, PanelLeftOpen,
 } from "lucide-react";
 import { BeatifyLogo } from "@/components/logo";
 import { supabase } from "@/integrations/supabase/client";
@@ -52,21 +52,49 @@ const STEPS = [
   { n: 10, label: "Submit", icon: Send },
 ] as const;
 
-const SIDEBAR = [
-  { label: "Dashboard", icon: LayoutDashboard, to: "/home" as const },
-  { label: "Create Release", icon: Disc3, to: "/studio" as const, active: true },
-  { label: "Songs", icon: Music2, to: "/library" as const, tab: "Songs" },
-  { label: "Albums", icon: Package, to: "/library" as const, tab: "Albums" },
-  { label: "Videos", icon: Film, to: "/library" as const },
-  { label: "Drafts", icon: FileText, to: "/library" as const },
-  { label: "Analytics", icon: BarChart3, to: "/analytics" as const },
-  { label: "Revenue", icon: Wallet, to: "/wallet" as const },
-  { label: "Royalties", icon: Coins, to: "/wallet" as const },
-  { label: "Playlists", icon: ListMusic, to: "/library" as const, tab: "Playlists" },
-  { label: "Profile", icon: User, to: "/profile" as const },
-  { label: "Settings", icon: Settings, to: "/profile" as const },
-  { label: "Support", icon: LifeBuoy, to: "/notifications" as const },
+type SidebarItem = { label: string; icon: any; to: string; active?: boolean; tab?: string };
+type SidebarGroup = { id: string; label: string; items: SidebarItem[] };
+
+const SIDEBAR_GROUPS: SidebarGroup[] = [
+  {
+    id: "workspace",
+    label: "Workspace",
+    items: [
+      { label: "Dashboard", icon: LayoutDashboard, to: "/home" },
+      { label: "Create Release", icon: Disc3, to: "/studio", active: true },
+    ],
+  },
+  {
+    id: "catalog",
+    label: "Catalog",
+    items: [
+      { label: "Songs", icon: Music2, to: "/library", tab: "Songs" },
+      { label: "Albums", icon: Package, to: "/library", tab: "Albums" },
+      { label: "Videos", icon: Film, to: "/library" },
+      { label: "Drafts", icon: FileText, to: "/library" },
+      { label: "Playlists", icon: ListMusic, to: "/library", tab: "Playlists" },
+    ],
+  },
+  {
+    id: "insights",
+    label: "Insights",
+    items: [
+      { label: "Analytics", icon: BarChart3, to: "/analytics" },
+      { label: "Revenue", icon: Wallet, to: "/wallet" },
+      { label: "Royalties", icon: Coins, to: "/wallet" },
+    ],
+  },
+  {
+    id: "account",
+    label: "Account",
+    items: [
+      { label: "Profile", icon: User, to: "/profile" },
+      { label: "Settings", icon: Settings, to: "/profile" },
+      { label: "Support", icon: LifeBuoy, to: "/notifications" },
+    ],
+  },
 ];
+
 
 const RELEASE_TYPES: { id: ReleaseType; title: string; desc: string; icon: any; req: string }[] = [
   { id: "single", title: "Single", desc: "One track release. Perfect for lead singles.", icon: Music, req: "1 audio · 1 artwork" },
@@ -122,6 +150,11 @@ function StudioPage() {
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [collapsed, setCollapsed] = useState(false);
+  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>(
+    () => Object.fromEntries(SIDEBAR_GROUPS.map((g) => [g.id, true]))
+  );
+  const toggleGroup = (id: string) =>
+    setOpenGroups((prev) => ({ ...prev, [id]: !prev[id] }));
 
   // Auto-collapse the Studio sidebar on tablet widths so the workspace doesn't feel cramped
   useEffect(() => {
@@ -336,33 +369,77 @@ function StudioPage() {
           )}
           <button
             onClick={() => setCollapsed(!collapsed)}
+            title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+            aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
             className="grid h-8 w-8 place-items-center rounded-lg text-white/60 hover:bg-white/5 hover:text-white"
           >
-            <Menu className="h-4 w-4" />
+            {collapsed ? <PanelLeftOpen className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />}
           </button>
         </div>
-        <nav className="flex-1 overflow-y-auto py-3">
-          {SIDEBAR.map((item) => {
-            const Icon = item.icon;
-            const active = item.active;
+        <nav className="flex-1 overflow-y-auto py-2">
+          {SIDEBAR_GROUPS.map((group) => {
+            const isOpen = collapsed ? true : openGroups[group.id];
             return (
-              <button
-                key={item.label}
-                onClick={() => !active && navigate({ to: item.to as any, search: item.tab ? { tab: item.tab } : undefined as any })}
-                className={cn(
-                  "group relative flex w-full items-center gap-3 px-3 py-2.5 text-[13px] font-medium transition",
-                  active ? "text-white" : "text-white/55 hover:text-white hover:bg-white/[0.03]"
+              <div key={group.id} className="mb-1">
+                {!collapsed && (
+                  <button
+                    onClick={() => toggleGroup(group.id)}
+                    aria-expanded={isOpen}
+                    className="flex w-full items-center justify-between gap-2 px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-white/35 hover:text-white/70 transition"
+                  >
+                    <span>{group.label}</span>
+                    <ChevronDown
+                      className={cn(
+                        "h-3 w-3 transition-transform duration-200",
+                        !isOpen && "-rotate-90"
+                      )}
+                    />
+                  </button>
                 )}
-              >
-                {active && (
-                  <motion.span
-                    layoutId="studio-active"
-                    className="absolute inset-y-1 left-0 w-[3px] rounded-r-full bg-[#FF4433] shadow-[0_0_18px_#FF4433]"
-                  />
-                )}
-                <Icon className={cn("h-[18px] w-[18px] shrink-0", active && "text-[#FF4433]")} strokeWidth={active ? 2.5 : 2} />
-                {!collapsed && <span>{item.label}</span>}
-              </button>
+                {collapsed && <div className="mx-3 my-2 h-px bg-white/[0.05]" />}
+                <AnimatePresence initial={false}>
+                  {isOpen && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
+                      className="overflow-hidden"
+                    >
+                      {group.items.map((item) => {
+                        const Icon = item.icon;
+                        const active = !!item.active;
+                        return (
+                          <button
+                            key={item.label}
+                            onClick={() =>
+                              !active &&
+                              navigate({ to: item.to as any, search: item.tab ? ({ tab: item.tab } as any) : (undefined as any) })
+                            }
+                            title={collapsed ? item.label : undefined}
+                            className={cn(
+                              "group relative flex w-full items-center gap-3 px-3 py-2 text-[13px] font-medium transition",
+                              active ? "text-white" : "text-white/55 hover:text-white hover:bg-white/[0.03]"
+                            )}
+                          >
+                            {active && (
+                              <motion.span
+                                layoutId="studio-active"
+                                className="absolute inset-y-1 left-0 w-[3px] rounded-r-full bg-[#FF4433] shadow-[0_0_18px_#FF4433]"
+                              />
+                            )}
+                            <Icon
+                              className={cn("h-[18px] w-[18px] shrink-0", active && "text-[#FF4433]")}
+                              strokeWidth={active ? 2.5 : 2}
+                            />
+                            {!collapsed && <span className="truncate">{item.label}</span>}
+                          </button>
+                        );
+                      })}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
             );
           })}
         </nav>
