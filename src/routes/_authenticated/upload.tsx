@@ -284,12 +284,92 @@ function UploadPage() {
           className="w-full rounded-xl bg-surface px-4 py-3.5 text-sm outline-none ring-1 ring-border focus:ring-primary"
         >
           <option value="">Select genre</option>
-          <option>Afro-Pop</option>
-          <option>Zimdancehall</option>
-          <option>Hip-Hop</option>
-          <option>Gospel</option>
-          <option>Amapiano</option>
-          <option>R&B</option>
+          <optgroup label="Zimbabwean">
+            <option>Zimdancehall</option>
+            <option>Sungura</option>
+            <option>Chimurenga</option>
+            <option>Museve</option>
+            <option>Jiti</option>
+            <option>Mbira</option>
+            <option>Zim Hip-Hop</option>
+            <option>Zim Gospel</option>
+            <option>Urban Grooves</option>
+            <option>Tuku Music</option>
+            <option>Borrowdale</option>
+          </optgroup>
+          <optgroup label="African">
+            <option>Afro-Pop</option>
+            <option>Afrobeats</option>
+            <option>Amapiano</option>
+            <option>Gqom</option>
+            <option>Kwaito</option>
+            <option>Bongo Flava</option>
+            <option>Kwassa Kwassa</option>
+            <option>Soukous</option>
+            <option>Highlife</option>
+            <option>Kizomba</option>
+            <option>Maskandi</option>
+            <option>Mbaqanga</option>
+          </optgroup>
+          <optgroup label="Urban & Hip-Hop">
+            <option>Hip-Hop</option>
+            <option>Rap</option>
+            <option>Trap</option>
+            <option>R&B</option>
+            <option>Soul</option>
+            <option>Neo-Soul</option>
+            <option>Drill</option>
+            <option>Grime</option>
+          </optgroup>
+          <optgroup label="Electronic & Dance">
+            <option>House</option>
+            <option>Deep House</option>
+            <option>Afro House</option>
+            <option>Techno</option>
+            <option>EDM</option>
+            <option>Drum & Bass</option>
+            <option>Dubstep</option>
+            <option>Garage</option>
+            <option>Trance</option>
+          </optgroup>
+          <optgroup label="Caribbean & Latin">
+            <option>Dancehall</option>
+            <option>Reggae</option>
+            <option>Roots Reggae</option>
+            <option>Soca</option>
+            <option>Reggaeton</option>
+            <option>Latin Pop</option>
+            <option>Salsa</option>
+            <option>Bachata</option>
+          </optgroup>
+          <optgroup label="Pop, Rock & Alternative">
+            <option>Pop</option>
+            <option>Rock</option>
+            <option>Alternative</option>
+            <option>Indie</option>
+            <option>Metal</option>
+            <option>Punk</option>
+            <option>Folk</option>
+            <option>Country</option>
+          </optgroup>
+          <optgroup label="Gospel & Spiritual">
+            <option>Gospel</option>
+            <option>Contemporary Gospel</option>
+            <option>Worship</option>
+            <option>Christian</option>
+          </optgroup>
+          <optgroup label="Jazz, Classical & Other">
+            <option>Jazz</option>
+            <option>Afro-Jazz</option>
+            <option>Blues</option>
+            <option>Classical</option>
+            <option>Instrumental</option>
+            <option>Lo-fi</option>
+            <option>Ambient</option>
+            <option>Spoken Word</option>
+            <option>Podcast</option>
+            <option>Other</option>
+          </optgroup>
         </select>
       </Field>
       <Field label="Album (optional)">
