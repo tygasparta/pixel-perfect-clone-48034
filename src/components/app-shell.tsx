@@ -179,6 +179,31 @@ export function AppShell({ children }: { children: ReactNode }) {
           <BeatifyLogo size={48} />
         </Link>
 
+        <div className="pointer-events-auto fixed right-3 top-2 z-30">
+          <DropdownMenu>
+            <DropdownMenuTrigger className="flex items-center gap-1.5 rounded-full border border-border/60 bg-background/70 py-1 pl-1 pr-2.5 text-xs font-semibold text-foreground shadow-glow backdrop-blur">
+              <span className="grid h-7 w-7 place-items-center rounded-full bg-gradient-to-br from-primary to-primary/60 text-primary-foreground">
+                <User className="h-3.5 w-3.5" />
+              </span>
+              Account
+              <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuLabel>My Account</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              {desktopAccount.map(({ to, label, icon: Icon }) => (
+                <DropdownMenuItem key={to} asChild>
+                  <Link to={to} className="flex items-center gap-2">
+                    <Icon className="h-4 w-4" />
+                    {label}
+                  </Link>
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+
+
         <main className="flex-1 pb-[152px]">{children}</main>
         <div className="fixed inset-x-0 bottom-0 z-40 mx-auto max-w-[520px]">
           <MiniPlayer />
