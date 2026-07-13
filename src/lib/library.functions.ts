@@ -173,7 +173,7 @@ export const renamePlaylist = createServerFn({ method: "POST" })
   }))
   .handler(async ({ data, context }) => {
     if (!data.name) throw new Error("Name is required");
-    const patch: Record<string, unknown> = { name: data.name };
+    const patch: { name: string; description?: string | null; is_public?: boolean } = { name: data.name };
     if (data.description !== undefined) patch.description = data.description;
     if (data.is_public !== undefined) patch.is_public = data.is_public;
     const { error } = await context.supabase
