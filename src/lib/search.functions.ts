@@ -8,10 +8,12 @@ export type SearchResults = { tracks: RecTrack[]; artists: SearchArtist[]; genre
 
 export const searchCatalog = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: { q?: string; genre?: string; limit?: number }) => ({
+  .inputValidator((data: { q?: string; genre?: string; limit?: number; sort?: string; duration?: string }) => ({
     q: (data.q ?? "").trim().slice(0, 80),
     genre: (data.genre ?? "").trim().slice(0, 40),
     limit: Math.min(Math.max(data.limit ?? 12, 1), 50),
+    sort: (["relevant", "newest", "popular"].includes(data.sort ?? "") ? data.sort : "relevant") as "relevant" | "newest" | "popular",
+    duration: (["any", "short", "medium", "long"].includes(data.duration ?? "") ? data.duration : "any") as "any" | "short" | "medium" | "long",
   }))
   .handler(async ({ data, context }): Promise<SearchResults> => {
     const { supabase } = context;
