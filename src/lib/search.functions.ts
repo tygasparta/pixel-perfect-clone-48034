@@ -3,7 +3,8 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import type { RecTrack } from "./recommendations.functions";
 
 export type SearchArtist = { id: string; name: string; cover_url: string | null };
-export type SearchResults = { tracks: RecTrack[]; artists: SearchArtist[] };
+export type SearchGenre = { name: string; track_count: number };
+export type SearchResults = { tracks: RecTrack[]; artists: SearchArtist[]; genres: SearchGenre[] };
 
 export const searchCatalog = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
