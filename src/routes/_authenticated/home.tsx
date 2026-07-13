@@ -457,16 +457,8 @@ function DesktopHome() {
 
         {/* -------- Right rail -------- */}
         <aside className="sticky top-0 hidden h-screen shrink-0 overflow-y-auto border-l border-border/40 bg-black/20 px-5 py-4 lg:block">
-          {/* Profile chip */}
-          <div className="mb-5 flex items-center justify-between rounded-full bg-surface/70 px-2 py-1.5 ring-1 ring-border">
-            <div className="flex items-center gap-2">
-              <div className="grid h-8 w-8 place-items-center rounded-full bg-gradient-primary text-xs font-black text-primary-foreground">
-                {(profile?.display_name ?? "B").slice(0, 1).toUpperCase()}
-              </div>
-              <span className="truncate text-sm font-bold">{profile?.display_name ?? "Friend"}</span>
-            </div>
-            <ChevronDown className="mr-1 h-4 w-4 text-muted-foreground" />
-          </div>
+
+
 
           {/* Recent Activity */}
           <div className="mb-6">
