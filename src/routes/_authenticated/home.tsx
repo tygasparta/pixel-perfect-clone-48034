@@ -511,14 +511,17 @@ function NavArrow({ dir }: { dir: "left" | "right" }) {
   );
 }
 
-function EqBars() {
+function EqBars({ active = true }: { active?: boolean }) {
   return (
     <div className="flex items-end gap-0.5">
       {[0.6, 1, 0.5, 0.9].map((h, i) => (
         <span
           key={i}
-          className="w-0.5 rounded-full bg-primary"
-          style={{ height: `${h * 12}px`, animation: `pulse 1.2s ${i * 0.15}s ease-in-out infinite` }}
+          className={`w-0.5 rounded-full ${active ? "bg-primary" : "bg-muted-foreground/40"}`}
+          style={{
+            height: `${h * 12}px`,
+            animation: active ? `pulse 1.2s ${i * 0.15}s ease-in-out infinite` : undefined,
+          }}
         />
       ))}
     </div>
