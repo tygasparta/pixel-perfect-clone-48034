@@ -970,7 +970,7 @@ function EditPlaylistDialog({
   const [isPublic, setIsPublic] = useState(initial.is_public);
 
   // Reset when reopened
-  useMemo(() => {
+  useEffect(() => {
     if (open) {
       setName(initial.name);
       setDescription(initial.description);
