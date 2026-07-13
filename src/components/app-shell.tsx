@@ -4,36 +4,45 @@ import type { ReactNode } from "react";
 import { MiniPlayer } from "./mini-player";
 import { BeatifyLogo } from "./logo";
 
-const mobileTabs = [
+type LibraryTab = "All" | "Playlists" | "Albums" | "Songs" | "Podcasts" | "Liked" | "Artists" | "Downloads" | "History";
+type NavItem = {
+  to: string;
+  label: string;
+  icon: typeof Home;
+  search?: { tab?: LibraryTab; playlist?: string };
+  matchSearch?: { tab?: LibraryTab; playlist?: string };
+};
+
+const mobileTabs: readonly NavItem[] = [
   { to: "/home", label: "Home", icon: Home },
   { to: "/search", label: "Search", icon: Search },
   { to: "/library", label: "Library", icon: Library },
   { to: "/upload", label: "Upload", icon: Upload },
   { to: "/profile", label: "Profile", icon: User },
-] as const;
+];
 
-const desktopPrimary = [
+const desktopPrimary: readonly NavItem[] = [
   { to: "/home", label: "Home", icon: Home },
   { to: "/search", label: "Browse", icon: Compass },
   { to: "/search", label: "Search", icon: Search },
-] as const;
+];
 
-const desktopLibrary = [
-  { to: "/library", label: "Liked Songs", icon: Heart },
-  { to: "/library", label: "Albums", icon: Disc3 },
-  { to: "/library", label: "Artists", icon: Users },
-  { to: "/library", label: "Playlists", icon: ListMusic },
-  { to: "/library", label: "Downloads", icon: Download },
-  { to: "/library", label: "History", icon: History },
-] as const;
+const desktopLibrary: readonly NavItem[] = [
+  { to: "/library", label: "Liked Songs", icon: Heart, search: { tab: "Liked" }, matchSearch: { tab: "Liked" } },
+  { to: "/library", label: "Albums", icon: Disc3, search: { tab: "Albums" }, matchSearch: { tab: "Albums" } },
+  { to: "/library", label: "Artists", icon: Users, search: { tab: "Artists" }, matchSearch: { tab: "Artists" } },
+  { to: "/library", label: "Playlists", icon: ListMusic, search: { tab: "Playlists" }, matchSearch: { tab: "Playlists" } },
+  { to: "/library", label: "Downloads", icon: Download, search: { tab: "Downloads" }, matchSearch: { tab: "Downloads" } },
+  { to: "/library", label: "History", icon: History, search: { tab: "History" }, matchSearch: { tab: "History" } },
+];
 
-const desktopAccount = [
+const desktopAccount: readonly NavItem[] = [
   { to: "/upload", label: "Upload", icon: Upload },
   { to: "/analytics", label: "Analytics", icon: BarChart3 },
   { to: "/wallet", label: "Wallet", icon: Wallet },
   { to: "/notifications", label: "Notifications", icon: Bell },
   { to: "/profile", label: "Profile", icon: User },
-] as const;
+];
 
 const sidebarPlaylists = [
   { name: "Vibes of Zimbabwe", songs: 50, gradient: "from-amber-500 to-red-700" },
@@ -45,6 +54,7 @@ const sidebarPlaylists = [
 
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const searchStr = useRouterState({ select: (s) => s.location.searchStr });
   const isPlayer = pathname === "/player";
 
   if (isPlayer) return <>{children}</>;
@@ -58,40 +68,52 @@ export function AppShell({ children }: { children: ReactNode }) {
             <BeatifyLogo size={44} withWordmark wordmarkClassName="text-xl" />
           </Link>
 
-          <NavGroup items={desktopPrimary} pathname={pathname} />
+          <NavGroup items={desktopPrimary} pathname={pathname} searchStr={searchStr} />
 
           <div className="mt-5 mb-2 px-3 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
             Your Library
           </div>
-          <NavGroup items={desktopLibrary} pathname={pathname} />
+          <NavGroup items={desktopLibrary} pathname={pathname} searchStr={searchStr} />
 
           <div className="mt-5 mb-2 flex items-center justify-between px-3">
             <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Playlists</span>
-            <button aria-label="New playlist" className="grid h-5 w-5 place-items-center rounded-full text-muted-foreground hover:bg-white/10 hover:text-foreground">
+            <Link
+              to="/library"
+              search={{ tab: "Playlists" as LibraryTab }}
+              aria-label="New playlist"
+              className="grid h-5 w-5 place-items-center rounded-full text-muted-foreground hover:bg-white/10 hover:text-foreground"
+            >
               <Plus className="h-3.5 w-3.5" />
-            </button>
+            </Link>
           </div>
           <ul className="flex flex-col gap-0.5 overflow-y-auto pr-1">
-            {sidebarPlaylists.map((p) => (
-              <li key={p.name}>
-                <Link
-                  to="/library"
-                  className="flex items-center gap-3 rounded-lg px-2 py-1.5 transition hover:bg-white/5"
-                >
-                  <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-md bg-gradient-to-br ${p.gradient} text-white`}>
-                    <ListMusic className="h-4 w-4" />
-                  </span>
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate text-[13px] font-semibold">{p.name}</span>
-                    <span className="block text-[10px] text-muted-foreground">{p.songs} songs</span>
-                  </span>
-                </Link>
-              </li>
-            ))}
+            {sidebarPlaylists.map((p) => {
+              const active = pathname === "/library" && searchStr.includes(`playlist=${encodeURIComponent(p.name)}`);
+              return (
+                <li key={p.name}>
+                  <Link
+                    to="/library"
+                    search={{ tab: "Playlists" as LibraryTab, playlist: p.name }}
+                    className={`flex items-center gap-3 rounded-lg px-2 py-1.5 transition ${active ? "bg-white/10" : "hover:bg-white/5"}`}
+                  >
+                    <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-md bg-gradient-to-br ${p.gradient} text-white`}>
+                      <ListMusic className="h-4 w-4" />
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className={`block truncate text-[13px] font-semibold ${active ? "text-primary" : ""}`}>{p.name}</span>
+                      <span className="block text-[10px] text-muted-foreground">{p.songs} songs</span>
+                    </span>
+                  </Link>
+                </li>
+              );
+            })}
           </ul>
 
           <div className="mt-auto pt-4">
-            <div className="relative overflow-hidden rounded-2xl border border-primary/30 bg-gradient-to-br from-primary/20 via-primary/5 to-transparent p-4">
+            <Link
+              to="/premium"
+              className="block relative overflow-hidden rounded-2xl border border-primary/30 bg-gradient-to-br from-primary/20 via-primary/5 to-transparent p-4 transition hover:border-primary/60"
+            >
               <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-primary/20 blur-2xl" />
               <div className="relative">
                 <div className="mb-1 flex items-center gap-1.5 text-primary">
@@ -101,14 +123,14 @@ export function AppShell({ children }: { children: ReactNode }) {
                 <p className="text-[11px] leading-snug text-muted-foreground">
                   Ad-free music, offline listening and more.
                 </p>
-                <button className="mt-3 w-full rounded-lg bg-primary py-1.5 text-xs font-bold text-primary-foreground shadow-glow transition hover:brightness-110">
+                <span className="mt-3 block w-full rounded-lg bg-primary py-1.5 text-center text-xs font-bold text-primary-foreground shadow-glow transition hover:brightness-110">
                   Upgrade Now
-                </button>
+                </span>
               </div>
-            </div>
+            </Link>
             <div className="mt-3 border-t border-border/50 pt-3">
               <div className="mb-1 px-3 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Account</div>
-              <NavGroup items={desktopAccount} pathname={pathname} compact />
+              <NavGroup items={desktopAccount} pathname={pathname} searchStr={searchStr} compact />
             </div>
           </div>
         </aside>
@@ -161,16 +183,33 @@ export function AppShell({ children }: { children: ReactNode }) {
   );
 }
 
-type NavItem = { to: string; label: string; icon: typeof Home };
-function NavGroup({ items, pathname, compact }: { items: readonly NavItem[]; pathname: string; compact?: boolean }) {
+function NavGroup({
+  items,
+  pathname,
+  searchStr,
+  compact,
+}: {
+  items: readonly NavItem[];
+  pathname: string;
+  searchStr: string;
+  compact?: boolean;
+}) {
   return (
     <ul className="flex flex-col gap-0.5">
-      {items.map(({ to, label, icon: Icon }) => {
-        const active = pathname === to || pathname.startsWith(to + "/");
+      {items.map(({ to, label, icon: Icon, search, matchSearch }) => {
+        const pathActive = pathname === to || pathname.startsWith(to + "/");
+        let active = pathActive;
+        if (pathActive && matchSearch?.tab) {
+          active = searchStr.includes(`tab=${matchSearch.tab}`);
+        } else if (pathActive && to === "/library" && !matchSearch) {
+          // "Your Library" root: only when no tab set
+          active = !/\btab=/.test(searchStr);
+        }
         return (
           <li key={`${to}-${label}`}>
             <Link
               to={to}
+              search={search as never}
               className={`flex items-center gap-3 rounded-lg px-3 ${compact ? "py-1.5 text-xs" : "py-2 text-sm"} font-semibold transition ${
                 active
                   ? "bg-primary text-primary-foreground shadow-glow"
