@@ -76,6 +76,21 @@ import { Button } from "@/components/ui/button";
 const tabs = ["Playlists", "Liked", "Artists", "Albums", "History"] as const;
 type Tab = (typeof tabs)[number];
 
+function InfiniteSentinel({
+  sentinelRef,
+  hasMore,
+}: {
+  sentinelRef: React.RefObject<HTMLDivElement | null>;
+  hasMore: boolean;
+}) {
+  if (!hasMore) return null;
+  return (
+    <div ref={sentinelRef} className="flex items-center justify-center py-6">
+      <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+    </div>
+  );
+}
+
 export const Route = createFileRoute("/_authenticated/library")({
   validateSearch: (s: Record<string, unknown>) => ({
     tab: (typeof s.tab === "string" && (tabs as readonly string[]).includes(s.tab) ? (s.tab as Tab) : "Playlists") as Tab,
