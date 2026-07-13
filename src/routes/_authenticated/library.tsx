@@ -623,6 +623,12 @@ function AlbumsTab({ q, loading, albums }: { q: string; loading: boolean; albums
       }),
     [albums, q],
   );
+  const { visible, sentinelRef, hasMore } = useInfiniteVisible({
+    total: filtered.length,
+    pageSize: 24,
+    resetKey: q,
+  });
+  const visibleAlbums = filtered.slice(0, visible);
 
   if (loading) return <LoadingBlock />;
   if (albums.length === 0)
@@ -635,36 +641,39 @@ function AlbumsTab({ q, loading, albums }: { q: string; loading: boolean; albums
     );
 
   return (
-    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5">
-      {filtered.map((a) => (
-        <Link
-          key={a.key}
-          to="/search"
-          search={{ q: a.album, genre: "", tab: "songs", sort: "relevant", duration: "any" }}
-          className="group flex flex-col gap-3 rounded-2xl bg-surface/60 p-3 ring-1 ring-border transition hover:bg-surface-2"
-        >
-          {a.cover_url ? (
-            <img src={a.cover_url} alt="" className="aspect-square w-full rounded-xl object-cover shadow-card" />
-          ) : (
-            <div className="grid aspect-square w-full place-items-center rounded-xl bg-gradient-to-br from-slate-600 to-slate-800 shadow-card">
-              <Music2 className="h-1/3 w-1/3 text-white/90" />
+    <>
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5">
+        {visibleAlbums.map((a) => (
+          <Link
+            key={a.key}
+            to="/search"
+            search={{ q: a.album, genre: "", tab: "songs", sort: "relevant", duration: "any" }}
+            className="group flex flex-col gap-3 rounded-2xl bg-surface/60 p-3 ring-1 ring-border transition hover:bg-surface-2"
+          >
+            {a.cover_url ? (
+              <img src={a.cover_url} alt="" className="aspect-square w-full rounded-xl object-cover shadow-card" />
+            ) : (
+              <div className="grid aspect-square w-full place-items-center rounded-xl bg-gradient-to-br from-slate-600 to-slate-800 shadow-card">
+                <Music2 className="h-1/3 w-1/3 text-white/90" />
+              </div>
+            )}
+            <div>
+              <div className="truncate text-sm font-bold">{a.album}</div>
+              <Link
+                to="/artist/$id"
+                params={{ id: a.artist_id }}
+                onClick={(e) => e.stopPropagation()}
+                className="truncate text-xs text-muted-foreground hover:text-foreground"
+              >
+                {a.artist_name}
+              </Link>
+              <div className="text-xs text-muted-foreground">{a.track_count} tracks</div>
             </div>
-          )}
-          <div>
-            <div className="truncate text-sm font-bold">{a.album}</div>
-            <Link
-              to="/artist/$id"
-              params={{ id: a.artist_id }}
-              onClick={(e) => e.stopPropagation()}
-              className="truncate text-xs text-muted-foreground hover:text-foreground"
-            >
-              {a.artist_name}
-            </Link>
-            <div className="text-xs text-muted-foreground">{a.track_count} tracks</div>
-          </div>
-        </Link>
-      ))}
-    </div>
+          </Link>
+        ))}
+      </div>
+      <InfiniteSentinel sentinelRef={sentinelRef} hasMore={hasMore} />
+    </>
   );
 }
 
