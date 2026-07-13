@@ -66,9 +66,9 @@ const sidebarPlaylists = [
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const searchStr = useRouterState({ select: (s) => s.location.searchStr });
-  const isPlayer = pathname === "/player";
+  const isFullBleed = pathname === "/player" || pathname === "/studio" || pathname.startsWith("/studio/");
 
-  if (isPlayer) return <>{children}</>;
+  if (isFullBleed) return <>{children}</>;
 
   return (
     <div className="min-h-screen bg-background md:flex md:min-h-screen md:flex-col">
