@@ -1,18 +1,25 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Download, Heart, ListMusic, Music2, Plus, Podcast, Search as SearchIcon } from "lucide-react";
 import { TrackRow } from "@/components/track-row";
 import { demoTracks, fmt } from "@/lib/mock-data";
 import { usePlayer } from "@/lib/player";
 
+const tabs = ["All", "Playlists", "Albums", "Songs", "Podcasts", "Liked", "Artists", "Downloads", "History"] as const;
+type Tab = (typeof tabs)[number];
+
 export const Route = createFileRoute("/_authenticated/library")({
+  validateSearch: (s: Record<string, unknown>) => ({
+    tab: (typeof s.tab === "string" && (tabs as readonly string[]).includes(s.tab) ? (s.tab as Tab) : "All") as Tab,
+    playlist: typeof s.playlist === "string" ? (s.playlist as string) : undefined,
+  }),
   component: LibraryPage,
 });
 
-const tabs = ["All", "Playlists", "Albums", "Songs", "Podcasts"] as const;
-
 function LibraryPage() {
-  const [tab, setTab] = useState<(typeof tabs)[number]>("All");
+  const search = Route.useSearch();
+  const [tab, setTab] = useState<Tab>(search.tab);
+  useEffect(() => { setTab(search.tab); }, [search.tab]);
   const { play } = usePlayer();
 
   const collections = [
