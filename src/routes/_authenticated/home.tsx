@@ -167,22 +167,28 @@ function DesktopHome() {
   const fetchTrending = useServerFn(getTrendingTracks);
   const fetchNewReleases = useServerFn(getNewReleases);
   const fetchRecent = useServerFn(getRecentlyPlayed);
+  const fetchTopArtists = useServerFn(getTopArtists);
   const { current, isPlaying, play, toggle } = usePlayer();
 
   const trendingQ = useQuery({
-    queryKey: ["catalog", "trending", 6],
-    queryFn: () => fetchTrending({ data: { limit: 6 } }),
+    queryKey: ["catalog", "trending", 12],
+    queryFn: () => fetchTrending({ data: { limit: 12 } }),
     staleTime: 60_000,
   });
   const newReleasesQ = useQuery({
-    queryKey: ["catalog", "new-releases", 5],
-    queryFn: () => fetchNewReleases({ data: { limit: 5 } }),
+    queryKey: ["catalog", "new-releases", 10],
+    queryFn: () => fetchNewReleases({ data: { limit: 10 } }),
     staleTime: 60_000,
   });
   const recentQ = useQuery({
     queryKey: ["catalog", "recently-played", 6, current?.id ?? null],
     queryFn: () => fetchRecent({ data: { limit: 6 } }),
     staleTime: 15_000,
+  });
+  const topArtistsQ = useQuery({
+    queryKey: ["catalog", "top-artists", 5],
+    queryFn: () => fetchTopArtists({ data: { limit: 5 } }),
+    staleTime: 60_000,
   });
 
   const trending = (trendingQ.data ?? []).map(dbTrackToTrack);
@@ -194,9 +200,16 @@ function DesktopHome() {
   const newReleasesList = newReleases.length > 0 ? newReleases : demoTracks.slice(3, 8);
   const trendingRow = trending.length > 0 ? trending.slice(0, 6) : demoTracks.slice(0, 6);
 
-  const topArtists = Array.from(
-    new Map(demoTracks.map((t) => [t.artistId, { id: t.artistId, name: t.artist, cover: t.cover }])).values()
-  ).slice(0, 5);
+  const topArtists = (topArtistsQ.data && topArtistsQ.data.length > 0)
+    ? topArtistsQ.data.map((a) => ({
+        id: a.id,
+        name: a.name,
+        cover: a.cover ?? demoTracks.find((t) => t.artistId === a.id)?.cover ?? demoTracks[0].cover,
+        listeners: a.plays,
+      }))
+    : Array.from(
+        new Map(demoTracks.map((t) => [t.artistId, { id: t.artistId, name: t.artist, cover: t.cover, listeners: 0 }])).values()
+      ).slice(0, 5);
 
   // Build the mix from recent listening (shuffled), falling back to trending/demo
   const mixQueue = (() => {
