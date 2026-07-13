@@ -69,7 +69,7 @@ function SearchPage() {
   const pushRecent = (term: string) => {
     const t = term.trim();
     if (!t) return;
-    setRecents((prev: { q: string; genre: string; tab: string }) => {
+    setRecents((prev: string[]) => {
       const next = [t, ...prev.filter((r) => r.toLowerCase() !== t.toLowerCase())].slice(0, 8);
       try {
         localStorage.setItem(RECENTS_KEY, JSON.stringify(next));
