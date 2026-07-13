@@ -180,19 +180,18 @@ export function AppShell({ children }: { children: ReactNode }) {
 
       {/* Mobile shell */}
       <div className="mx-auto flex min-h-screen w-full max-w-[520px] flex-col bg-background md:hidden">
-        <Link
-          to="/home"
-          aria-label="Beatify home"
-          className="pointer-events-auto fixed left-3 top-2 z-30 rounded-full bg-background/60 p-1.5 shadow-glow backdrop-blur"
-        >
+        <header className="sticky top-0 z-30 flex h-14 items-center justify-between gap-3 border-b border-border/60 bg-background/80 px-3 backdrop-blur-xl">
+          <Link
+            to="/home"
+            aria-label="Beatify home"
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-background/60 shadow-glow"
+          >
+            <BeatifyLogo size={36} />
+          </Link>
 
-          <BeatifyLogo size={48} />
-        </Link>
-
-        <div className="pointer-events-auto fixed right-3 top-2 z-30">
           <DropdownMenu>
-            <DropdownMenuTrigger className="flex items-center gap-1.5 rounded-full border border-border/60 bg-background/70 py-1 pl-1 pr-2.5 text-xs font-semibold text-foreground shadow-glow backdrop-blur">
-              <span className="grid h-7 w-7 place-items-center rounded-full bg-gradient-to-br from-primary to-primary/60 text-primary-foreground">
+            <DropdownMenuTrigger className="flex h-10 shrink-0 items-center gap-1.5 rounded-full border border-border/60 bg-background/70 pl-1 pr-3 text-xs font-semibold text-foreground shadow-glow">
+              <span className="grid h-8 w-8 place-items-center rounded-full bg-gradient-to-br from-primary to-primary/60 text-primary-foreground">
                 <User className="h-3.5 w-3.5" />
               </span>
               Account
@@ -211,10 +210,10 @@ export function AppShell({ children }: { children: ReactNode }) {
               ))}
             </DropdownMenuContent>
           </DropdownMenu>
-        </div>
+        </header>
 
+        <main className="min-w-0 flex-1 pb-[152px]">{children}</main>
 
-        <main className="flex-1 pb-[152px]">{children}</main>
         <div className="fixed inset-x-0 bottom-0 z-40 mx-auto max-w-[520px]">
           <MiniPlayer />
           <nav className="border-t border-border/60 bg-background/95 backdrop-blur-xl">
