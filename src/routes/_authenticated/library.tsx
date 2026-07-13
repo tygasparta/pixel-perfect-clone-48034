@@ -29,6 +29,7 @@ import type { Track } from "@/lib/mock-data";
 import { useInfiniteVisible } from "@/hooks/use-infinite-visible";
 import {
   clearPlayHistory,
+  removePlayHistoryEntry,
   deletePlaylist,
   getFollowedArtists,
   getLibraryCounts,
