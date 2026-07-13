@@ -56,11 +56,31 @@ export function TrackDetailModal({
     onError: () => toast.error("Couldn't update like"),
   });
 
+  const fetchPlaylists = useServerFn(listMyPlaylists);
+  const doAddToPlaylist = useServerFn(addTrackToPlaylist);
+  const [createOpen, setCreateOpen] = useState(false);
+  const playlistsQ = useQuery({
+    queryKey: ["library", "playlists"],
+    queryFn: () => fetchPlaylists(),
+    staleTime: 15_000,
+  });
+  const addToPlaylistMut = useMutation({
+    mutationFn: (vars: { playlistId: string; trackId: string; playlistName: string }) =>
+      doAddToPlaylist({ data: { playlistId: vars.playlistId, trackId: vars.trackId } }),
+    onSuccess: (res, vars) => {
+      queryClient.invalidateQueries({ queryKey: ["library"] });
+      if (res.added) toast.success(`Added to "${vars.playlistName}"`);
+      else toast.info(`Already in "${vars.playlistName}"`);
+    },
+    onError: () => toast.error("Couldn't add to playlist"),
+  });
+
   const open = track !== null;
   const isCurrent = track && current?.id === track.id;
   const isThisPlaying = isCurrent && isPlaying;
   const liked = track ? likedIds.has(track.id) : false;
   const canLike = track && isDbTrackId(track.id);
+  const canPlaylist = track && isDbTrackId(track.id);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
