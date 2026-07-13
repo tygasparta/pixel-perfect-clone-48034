@@ -1,15 +1,16 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { Bell, ChevronRight, Play, TrendingUp, Sparkles } from "lucide-react";
+import { Bell, ChevronRight, Play, Pause, Mail, ChevronDown, ArrowLeft, ArrowRight, Heart, ListPlus, Radio } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { TrackRow } from "@/components/track-row";
 import { RecommendedForYou } from "@/components/recommended-for-you";
 import { SearchCommand } from "@/components/search-command";
-import { demoTracks, madeForYou, genres, type Track } from "@/lib/mock-data";
+import { demoTracks, madeForYou, type Track } from "@/lib/mock-data";
 import { usePlayer } from "@/lib/player";
 import { getTrendingTracks, getNewReleases, getRecentlyPlayed } from "@/lib/catalog.functions";
 import { dbTrackToTrack } from "@/lib/track-mapper";
+import heroArtist from "@/assets/hero-artist.jpg";
 
 export const Route = createFileRoute("/_authenticated/home")({
   component: HomePage,
@@ -36,7 +37,7 @@ function HomePage() {
   );
 }
 
-/* ------------------------------ MOBILE ------------------------------ */
+/* ------------------------------ MOBILE (unchanged) ------------------------------ */
 function MobileHome() {
   const { data: profile } = useProfile();
   const { play } = usePlayer();
@@ -134,6 +135,31 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 }
 
 /* ------------------------------ DESKTOP ------------------------------ */
+
+const trendingPlaylists = [
+  { name: "Zim Top 50", songs: 50, tag: "ZIM TOP 50", from: "from-slate-900", to: "to-red-950", accent: "text-white" },
+  { name: "Zimdancehall Hits", songs: 75, tag: "ZIMDANCEHALL HITS", from: "from-amber-500", to: "to-orange-700", accent: "text-black" },
+  { name: "Afro Fusion Vibes", songs: 60, tag: "AFRO FUSION VIBES", from: "from-emerald-800", to: "to-teal-950", accent: "text-white" },
+  { name: "Gospel Hits ZW", songs: 40, tag: "GOSPEL HITS ZW", from: "from-indigo-700", to: "to-purple-950", accent: "text-white" },
+  { name: "Sungura Classics", songs: 55, tag: "SUNGURA CLASSICS", from: "from-rose-700", to: "to-red-950", accent: "text-white" },
+  { name: "Hip Hop ZW", songs: 65, tag: "HIP HOP ZW", from: "from-neutral-800", to: "to-red-950", accent: "text-white" },
+];
+
+const recentActivity = [
+  { kind: "like", who: "You liked", title: "Gwara Gwara", sub: "Master H", time: "2m", tint: "bg-primary/20 text-primary" },
+  { kind: "add", who: "You added", title: "Maita Basa", sub: "to Vibes of Zimbabwe", time: "15m", tint: "bg-emerald-500/20 text-emerald-400" },
+  { kind: "release", who: "Winky D released", title: "Deep in My Heart", sub: "Album", time: "1h", tint: "bg-fuchsia-500/20 text-fuchsia-400" },
+  { kind: "upload", who: "Saintfloew uploaded", title: "Forever", sub: "Single", time: "3h", tint: "bg-sky-500/20 text-sky-400" },
+  { kind: "friend", who: "Tariro liked", title: "Ndini Mukudzei", sub: "Winky D", time: "5h", tint: "bg-primary/20 text-primary" },
+];
+
+const friendActivity = [
+  { name: "Tariro Moyo", track: "Sorai", artist: "Nutty O" },
+  { name: "Kuda Jnr", track: "Pachena", artist: "Voltz JT" },
+  { name: "Chipo Mapfumo", track: "Jerusarema", artist: "Jah Prayzah" },
+  { name: "Carl Mutandwa", track: "Made In Zimbabwe", artist: "Nutty O" },
+];
+
 function DesktopHome() {
   const { data: profile } = useProfile();
   const greeting = greetingByHour();
@@ -141,325 +167,335 @@ function DesktopHome() {
   const fetchTrending = useServerFn(getTrendingTracks);
   const fetchNewReleases = useServerFn(getNewReleases);
   const fetchRecent = useServerFn(getRecentlyPlayed);
-  const { current } = usePlayer();
+  const { current, isPlaying, play, toggle } = usePlayer();
 
   const trendingQ = useQuery({
-    queryKey: ["catalog", "trending", 10],
-    queryFn: () => fetchTrending({ data: { limit: 10 } }),
+    queryKey: ["catalog", "trending", 6],
+    queryFn: () => fetchTrending({ data: { limit: 6 } }),
     staleTime: 60_000,
   });
   const newReleasesQ = useQuery({
-    queryKey: ["catalog", "new-releases", 12],
-    queryFn: () => fetchNewReleases({ data: { limit: 12 } }),
+    queryKey: ["catalog", "new-releases", 5],
+    queryFn: () => fetchNewReleases({ data: { limit: 5 } }),
     staleTime: 60_000,
   });
   const recentQ = useQuery({
-    queryKey: ["catalog", "recently-played", 8, current?.id ?? null],
-    queryFn: () => fetchRecent({ data: { limit: 8 } }),
+    queryKey: ["catalog", "recently-played", 6, current?.id ?? null],
+    queryFn: () => fetchRecent({ data: { limit: 6 } }),
     staleTime: 15_000,
   });
 
   const trending = (trendingQ.data ?? []).map(dbTrackToTrack);
   const newReleases = (newReleasesQ.data ?? []).map(dbTrackToTrack);
   const recent = (recentQ.data ?? []).map(dbTrackToTrack);
-  const quickPicks = trending.slice(0, 6);
+
+  // Fallbacks so first-time users still see something rich
+  const continueListening = recent.length > 0 ? recent : demoTracks.slice(0, 6);
+  const newReleasesList = newReleases.length > 0 ? newReleases : demoTracks.slice(3, 8);
+  const trendingRow = trending.length > 0 ? trending.slice(0, 6) : demoTracks.slice(0, 6);
+
+  const topArtists = Array.from(
+    new Map(demoTracks.map((t) => [t.artistId, { id: t.artistId, name: t.artist, cover: t.cover }])).values()
+  ).slice(0, 5);
+
+  const playMix = () => {
+    if (continueListening.length > 0) play(continueListening[0], continueListening);
+  };
 
   return (
     <div className="hidden md:block">
-      {/* Ambient gradient header */}
-      <div className="relative">
-        <div
-          aria-hidden
-          className="absolute inset-x-0 top-0 h-72 -z-10"
-          style={{
-            background:
-              "linear-gradient(180deg, oklch(0.635 0.22 26 / 0.35) 0%, oklch(0.72 0.20 30 / 0.15) 40%, transparent 100%)",
-          }}
-        />
-        <div className="flex items-center justify-between gap-4 px-10 pt-8">
-          <div className="flex items-center gap-2">
-            <NavArrow dir="left" />
-            <NavArrow dir="right" />
-          </div>
-          <SearchCommand className="flex-1 max-w-md" />
-          <div className="flex items-center gap-3">
-            <button className="relative grid h-10 w-10 place-items-center rounded-full bg-surface ring-1 ring-border">
+      <div className="grid grid-cols-[1fr_320px] gap-0">
+        {/* -------- Center column -------- */}
+        <div className="min-w-0">
+          {/* Top bar */}
+          <div className="sticky top-0 z-20 flex items-center gap-3 border-b border-border/40 bg-background/80 px-8 py-3 backdrop-blur-xl">
+            <div className="flex gap-1">
+              <NavArrow dir="left" />
+              <NavArrow dir="right" />
+            </div>
+            <SearchCommand className="flex-1" />
+            <button className="relative grid h-9 w-9 place-items-center rounded-full bg-surface/70 ring-1 ring-border transition hover:bg-surface">
               <Bell className="h-4 w-4" />
-              <span className="absolute right-2 top-2 h-1.5 w-1.5 rounded-full bg-primary" />
+              <span className="absolute right-1.5 top-1.5 grid h-4 w-4 place-items-center rounded-full bg-primary text-[9px] font-black text-primary-foreground">3</span>
             </button>
-            <Link
-              to="/profile"
-              className="grid h-10 w-10 place-items-center rounded-full bg-gradient-primary text-sm font-black text-primary-foreground shadow-glow"
-            >
-              {(profile?.display_name ?? "B").slice(0, 1).toUpperCase()}
-            </Link>
+            <button className="grid h-9 w-9 place-items-center rounded-full bg-surface/70 ring-1 ring-border transition hover:bg-surface">
+              <Mail className="h-4 w-4" />
+            </button>
           </div>
-        </div>
 
-        <div className="px-10 pt-8">
-          <p className="text-xs font-semibold uppercase tracking-widest text-primary">{greeting}</p>
-          <h1 className="mt-1 text-4xl font-black leading-tight">
-            Welcome back, {profile?.display_name ?? "friend"}
-          </h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Fresh drops from Zimbabwe and picks tuned to your taste.
-          </p>
-        </div>
-      </div>
-
-      {/* Quick picks - 3x2 grid of horizontal tiles */}
-      <section className="px-10 pt-8">
-        <div className="grid grid-cols-2 gap-3 xl:grid-cols-3">
-          {quickPicks.map((t) => (
-            <QuickPickTile key={t.id} track={t} queue={quickPicks} />
-          ))}
-        </div>
-      </section>
-
-      {/* Made for you (recommendation carousel) */}
-      <DesktopRow title="Made for you" icon={<Sparkles className="h-4 w-4 text-primary" />}>
-        <RecommendedForYou limit={10} />
-      </DesktopRow>
-
-      {/* Trending row */}
-      <DesktopRow title="Trending in Zimbabwe" icon={<TrendingUp className="h-4 w-4 text-primary" />}>
-        <CoverGrid
-          tracks={trending}
-          cols={5}
-          coverSize={44}
-          loading={trendingQ.isLoading}
-          empty="No trending tracks yet."
-        />
-      </DesktopRow>
-
-      {/* New releases */}
-      <DesktopRow title="New releases">
-        <CoverGrid
-          tracks={newReleases}
-          cols={6}
-          coverSize={40}
-          loading={newReleasesQ.isLoading}
-          empty="No new releases yet."
-        />
-      </DesktopRow>
-
-      {/* Genres + Recent listening */}
-      <section className="grid grid-cols-3 gap-6 px-10 pt-2">
-        <div className="col-span-2">
-          <div className="mb-4 flex items-baseline justify-between">
-            <h2 className="text-xl font-black">Recently played</h2>
-            <button className="text-xs font-semibold text-muted-foreground hover:text-foreground">See all</button>
-          </div>
-          <div className="rounded-2xl bg-surface/60 p-2 ring-1 ring-border">
-            {recentQ.isLoading ? (
-              Array.from({ length: 5 }).map((_, i) => (
-                <div key={i} className="flex items-center gap-3 px-2 py-2">
-                  <div className="h-11 w-11 animate-pulse rounded-lg bg-surface" />
-                  <div className="flex-1 space-y-2">
-                    <div className="h-3 w-1/3 animate-pulse rounded bg-surface" />
-                    <div className="h-2.5 w-1/4 animate-pulse rounded bg-surface" />
-                  </div>
+          {/* Hero */}
+          <section className="px-8 pt-6">
+            <div className="relative overflow-hidden rounded-3xl bg-black shadow-card ring-1 ring-border">
+              <img src={heroArtist} alt="" className="h-[280px] w-full object-cover object-right" />
+              <div className="absolute inset-0 bg-gradient-to-r from-black via-black/70 to-transparent" />
+              <div className="absolute inset-y-0 left-0 flex max-w-[55%] flex-col justify-center px-10">
+                <div className="text-sm font-semibold text-white/80">{greeting},</div>
+                <h1 className="mt-1 flex items-center gap-3 text-5xl font-black leading-none text-white">
+                  {(profile?.display_name ?? "there").split(" ")[0]}
+                  <span className="text-4xl">👋</span>
+                </h1>
+                <p className="mt-3 max-w-sm text-sm text-white/70">
+                  Discover new sounds from Zimbabwe and around the world.
+                </p>
+                <div className="mt-5 flex items-center gap-3">
+                  <button
+                    onClick={playMix}
+                    className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-bold text-primary-foreground shadow-glow transition hover:brightness-110"
+                  >
+                    <Play className="h-4 w-4" fill="currentColor" />
+                    Play Mix
+                  </button>
+                  <Link
+                    to="/search"
+                    className="inline-flex items-center gap-2 rounded-full bg-white/10 px-5 py-2.5 text-sm font-bold text-white ring-1 ring-white/20 backdrop-blur transition hover:bg-white/20"
+                  >
+                    Explore
+                  </Link>
                 </div>
-              ))
-            ) : recent.length === 0 ? (
-              <div className="px-4 py-8 text-center text-sm text-muted-foreground">
-                Nothing here yet. Play a few tracks to see them show up.
               </div>
-            ) : (
-              recent.map((t: Track, i: number) => (
-                <TrackRow key={t.id} track={t} queue={recent} index={i} showDuration />
-              ))
-            )}
-          </div>
-        </div>
-        <div>
-          <div className="mb-4 flex items-baseline justify-between">
-            <h2 className="text-xl font-black">Browse genres</h2>
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            {genres.map((g) => (
-              <div
-                key={g.name}
-                className={`relative aspect-[5/3] overflow-hidden rounded-2xl bg-gradient-to-br p-3 shadow-card ${g.color}`}
-              >
-                <span className="text-sm font-black text-white">{g.name}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+            </div>
+          </section>
 
-      <div className="h-16" />
+          {/* Continue Listening */}
+          <RowHeader title="Continue Listening" />
+          <div className="px-8">
+            <div className="grid grid-cols-6 gap-4">
+              {continueListening.slice(0, 6).map((t) => {
+                const isCurrent = current?.id === t.id;
+                return (
+                  <button
+                    key={t.id}
+                    onClick={() => (isCurrent ? toggle() : play(t, continueListening))}
+                    className="group text-left"
+                  >
+                    <div className="relative aspect-square overflow-hidden rounded-2xl shadow-card">
+                      <img src={t.cover} alt="" className="h-full w-full object-cover transition group-hover:scale-105" />
+                      <span
+                        className={`absolute bottom-2 right-2 grid h-10 w-10 place-items-center rounded-full bg-primary text-primary-foreground shadow-glow transition ${
+                          isCurrent ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+                        }`}
+                      >
+                        {isCurrent && isPlaying ? (
+                          <Pause className="h-4 w-4" fill="currentColor" />
+                        ) : (
+                          <Play className="h-4 w-4" fill="currentColor" />
+                        )}
+                      </span>
+                    </div>
+                    <div className={`mt-2 truncate text-sm font-bold ${isCurrent ? "text-primary" : ""}`}>{t.title}</div>
+                    <div className="truncate text-xs text-muted-foreground">{t.artist}</div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Trending in Zimbabwe — playlist cards */}
+          <RowHeader title="Trending in Zimbabwe" />
+          <div className="px-8">
+            <div className="grid grid-cols-6 gap-4">
+              {trendingPlaylists.map((p, i) => {
+                const song = trendingRow[i] ?? trendingRow[0];
+                return (
+                  <button
+                    key={p.name}
+                    onClick={() => song && play(song, trendingRow)}
+                    className="group text-left"
+                  >
+                    <div className={`relative aspect-square overflow-hidden rounded-2xl bg-gradient-to-br ${p.from} ${p.to} p-4 shadow-card`}>
+                      <div className={`text-lg font-black uppercase leading-tight tracking-tight ${p.accent}`}>
+                        {p.tag}
+                      </div>
+                      <span className="absolute bottom-2 right-2 grid h-10 w-10 place-items-center rounded-full bg-primary text-primary-foreground opacity-0 shadow-glow transition group-hover:opacity-100">
+                        <Play className="h-4 w-4" fill="currentColor" />
+                      </span>
+                    </div>
+                    <div className="mt-2 truncate text-sm font-bold">{p.name}</div>
+                    <div className="truncate text-xs text-muted-foreground">{p.songs} songs</div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Two-column: New Releases + Top Artists */}
+          <div className="grid grid-cols-2 gap-6 px-8 pt-10">
+            <div>
+              <div className="mb-4 flex items-baseline justify-between">
+                <h2 className="text-lg font-black">New Releases</h2>
+                <button className="text-xs font-semibold text-primary hover:brightness-125">See All</button>
+              </div>
+              <div className="grid grid-cols-5 gap-3">
+                {newReleasesList.slice(0, 5).map((t) => {
+                  const isCurrent = current?.id === t.id;
+                  return (
+                    <button
+                      key={t.id}
+                      onClick={() => (isCurrent ? toggle() : play(t, newReleasesList))}
+                      className="group text-left"
+                    >
+                      <div className="relative aspect-square overflow-hidden rounded-xl shadow-card">
+                        <img src={t.cover} alt="" className="h-full w-full object-cover transition group-hover:scale-105" />
+                        <span className="absolute bottom-1.5 right-1.5 grid h-8 w-8 place-items-center rounded-full bg-primary text-primary-foreground opacity-0 shadow-glow transition group-hover:opacity-100">
+                          <Play className="h-3.5 w-3.5" fill="currentColor" />
+                        </span>
+                      </div>
+                      <div className={`mt-2 truncate text-xs font-bold ${isCurrent ? "text-primary" : ""}`}>{t.title}</div>
+                      <div className="truncate text-[11px] text-muted-foreground">{t.artist}</div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div>
+              <div className="mb-4 flex items-baseline justify-between">
+                <h2 className="text-lg font-black">Top Artists</h2>
+                <button className="text-xs font-semibold text-primary hover:brightness-125">See All</button>
+              </div>
+              <div className="grid grid-cols-5 gap-3">
+                {topArtists.map((a, i) => (
+                  <Link
+                    key={a.id}
+                    to="/artist/$id"
+                    params={{ id: a.id }}
+                    className="group text-center"
+                  >
+                    <div className="relative mx-auto aspect-square overflow-hidden rounded-full shadow-card ring-2 ring-border transition group-hover:ring-primary">
+                      <img src={a.cover} alt="" className="h-full w-full object-cover transition group-hover:scale-105" />
+                    </div>
+                    <div className="mt-2 truncate text-xs font-bold">{a.name}</div>
+                    <div className="truncate text-[11px] text-muted-foreground">{(120 - i * 15)}K listeners</div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="h-24" />
+        </div>
+
+        {/* -------- Right rail -------- */}
+        <aside className="sticky top-0 hidden h-screen shrink-0 overflow-y-auto border-l border-border/40 bg-black/20 px-5 py-4 lg:block">
+          {/* Profile chip */}
+          <div className="mb-5 flex items-center justify-between rounded-full bg-surface/70 px-2 py-1.5 ring-1 ring-border">
+            <div className="flex items-center gap-2">
+              <div className="grid h-8 w-8 place-items-center rounded-full bg-gradient-primary text-xs font-black text-primary-foreground">
+                {(profile?.display_name ?? "B").slice(0, 1).toUpperCase()}
+              </div>
+              <span className="truncate text-sm font-bold">{profile?.display_name ?? "Friend"}</span>
+            </div>
+            <ChevronDown className="mr-1 h-4 w-4 text-muted-foreground" />
+          </div>
+
+          {/* Recent Activity */}
+          <div className="mb-6">
+            <div className="mb-3 flex items-baseline justify-between">
+              <h3 className="text-sm font-black">Recent Activity</h3>
+              <button className="text-[11px] font-semibold text-primary hover:brightness-125">See All</button>
+            </div>
+            <ul className="space-y-3">
+              {recentActivity.map((a, i) => (
+                <li key={i} className="flex items-start gap-3">
+                  <div className={`grid h-8 w-8 shrink-0 place-items-center rounded-full ${a.tint}`}>
+                    {a.kind === "like" ? <Heart className="h-3.5 w-3.5" fill="currentColor" /> :
+                     a.kind === "add" ? <ListPlus className="h-3.5 w-3.5" /> :
+                     a.kind === "release" ? <Disc className="h-3.5 w-3.5" /> :
+                     a.kind === "upload" ? <Radio className="h-3.5 w-3.5" /> :
+                     <Heart className="h-3.5 w-3.5" fill="currentColor" />}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="text-[11px] text-muted-foreground">
+                      {a.who} <span className="font-semibold text-foreground">{a.title}</span>
+                    </div>
+                    <div className="truncate text-[11px] text-muted-foreground">{a.sub}</div>
+                  </div>
+                  <span className="shrink-0 text-[10px] text-muted-foreground">{a.time}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Friend Activity */}
+          <div>
+            <h3 className="mb-3 text-sm font-black">Friend Activity</h3>
+            <ul className="space-y-3">
+              {friendActivity.map((f, i) => (
+                <li key={i} className="flex items-center gap-3">
+                  <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-gradient-to-br from-primary/40 to-primary/10 text-xs font-black text-primary">
+                    {f.name.split(" ").map((n) => n[0]).slice(0, 2).join("")}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate text-xs font-bold">{f.name}</div>
+                    <div className="truncate text-[11px] text-muted-foreground">
+                      Listening to <span className="text-foreground/80">{f.track}</span>
+                    </div>
+                    <div className="truncate text-[11px] text-muted-foreground">by {f.artist}</div>
+                  </div>
+                  <EqBars />
+                </li>
+              ))}
+            </ul>
+            <button className="mt-4 w-full rounded-full bg-surface py-2 text-xs font-bold ring-1 ring-border transition hover:bg-surface/80">
+              Find Friends
+            </button>
+          </div>
+        </aside>
+      </div>
     </div>
   );
 }
 
-function DesktopRow({ title, icon, children }: { title: string; icon?: React.ReactNode; children: React.ReactNode }) {
+function RowHeader({ title }: { title: string }) {
   return (
-    <section className="px-10 pt-10">
-      <div className="mb-4 flex items-baseline justify-between">
-        <h2 className="flex items-center gap-2 text-xl font-black">
-          {icon}
-          {title}
-        </h2>
-        <button className="text-xs font-semibold text-muted-foreground hover:text-foreground">See all</button>
-      </div>
-      {children}
-    </section>
+    <div className="mb-4 mt-10 flex items-baseline justify-between px-8">
+      <h2 className="text-lg font-black">{title}</h2>
+      <button className="text-xs font-semibold text-primary hover:brightness-125">See All</button>
+    </div>
   );
 }
 
 function NavArrow({ dir }: { dir: "left" | "right" }) {
+  const Icon = dir === "left" ? ArrowLeft : ArrowRight;
   return (
     <button
-      className="grid h-8 w-8 place-items-center rounded-full bg-black/40 text-white/80 ring-1 ring-border transition hover:text-white"
+      className="grid h-8 w-8 place-items-center rounded-full bg-surface/70 text-muted-foreground ring-1 ring-border transition hover:text-foreground"
       aria-label={dir === "left" ? "Back" : "Forward"}
     >
-      <ChevronRight className={`h-4 w-4 ${dir === "left" ? "rotate-180" : ""}`} />
+      <Icon className="h-4 w-4" />
     </button>
+  );
+}
+
+function EqBars() {
+  return (
+    <div className="flex items-end gap-0.5">
+      {[0.6, 1, 0.5, 0.9].map((h, i) => (
+        <span
+          key={i}
+          className="w-0.5 rounded-full bg-primary"
+          style={{ height: `${h * 12}px`, animation: `pulse 1.2s ${i * 0.15}s ease-in-out infinite` }}
+        />
+      ))}
+    </div>
+  );
+}
+
+function Disc({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} fill="currentColor">
+      <circle cx="12" cy="12" r="10" fillOpacity="0.4" />
+      <circle cx="12" cy="12" r="3" />
+    </svg>
   );
 }
 
 function greetingByHour() {
   const h = new Date().getHours();
-  if (h < 12) return "Good morning";
-  if (h < 18) return "Good afternoon";
-  return "Good evening";
+  if (h < 12) return "Good Morning";
+  if (h < 18) return "Good Afternoon";
+  return "Good Evening";
 }
 
-function QuickPickTile({ track, queue }: { track: import("@/lib/mock-data").Track; queue: import("@/lib/mock-data").Track[] }) {
-  const { play, current, isPlaying, toggle } = usePlayer();
-  const navigate = useNavigate();
-  const isCurrent = current?.id === track.id;
-
-  const openPlayer = () => {
-    if (isCurrent) {
-      toggle();
-    } else {
-      play(track, queue);
-    }
-    navigate({ to: "/player" });
-  };
-
-  return (
-    <div
-      role="button"
-      tabIndex={0}
-      onClick={openPlayer}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
-          openPlayer();
-        }
-      }}
-      className="group flex cursor-pointer items-center gap-3 overflow-hidden rounded-xl bg-surface/70 pr-3 ring-1 ring-border transition hover:bg-surface"
-    >
-      <img src={track.cover} alt="" className="h-16 w-16 shrink-0 object-cover" />
-      <div className="min-w-0 flex-1 py-2 text-left">
-        <div className={`truncate text-sm font-bold ${isCurrent ? "text-primary" : ""}`}>{track.title}</div>
-        <Link
-          to="/artist/$id"
-          params={{ id: track.artistId }}
-          onClick={(e) => e.stopPropagation()}
-          className="truncate text-[11px] text-muted-foreground hover:text-foreground"
-        >
-          {track.artist}
-        </Link>
-      </div>
-      <button
-        onClick={(e) => {
-          e.stopPropagation();
-          if (isCurrent) toggle();
-          else play(track, queue);
-        }}
-        aria-label={isCurrent && isPlaying ? `Pause ${track.title}` : `Play ${track.title}`}
-        className={`grid h-10 w-10 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground shadow-glow transition ${
-          isCurrent ? "opacity-100" : "opacity-0 group-hover:opacity-100"
-        }`}
-      >
-        <Play className="h-4 w-4" fill="currentColor" />
-      </button>
-    </div>
-  );
-}
-
-const COLS: Record<number, string> = {
-  3: "grid-cols-3",
-  4: "grid-cols-4",
-  5: "grid-cols-5",
-  6: "grid-cols-6",
-};
-
-function CoverGrid({
-  tracks,
-  cols,
-  coverSize,
-  loading,
-  empty,
-}: {
-  tracks: Track[];
-  cols: 3 | 4 | 5 | 6;
-  coverSize: 40 | 44;
-  loading?: boolean;
-  empty: string;
-}) {
-  const { play, current, isPlaying, toggle } = usePlayer();
-  const gridCls = `grid gap-4 ${COLS[cols]}`;
-  const btnSize = coverSize === 44 ? "h-11 w-11" : "h-10 w-10";
-
-  if (loading) {
-    return (
-      <div className={gridCls} aria-busy>
-        {Array.from({ length: cols }).map((_, i) => (
-          <div key={i}>
-            <div className="aspect-square animate-pulse rounded-2xl bg-surface" />
-            <div className="mt-3 h-3 w-2/3 animate-pulse rounded bg-surface" />
-            <div className="mt-1.5 h-2.5 w-1/2 animate-pulse rounded bg-surface" />
-          </div>
-        ))}
-      </div>
-    );
-  }
-
-  if (tracks.length === 0) {
-    return (
-      <div className="rounded-2xl bg-surface/60 px-6 py-10 text-center text-sm text-muted-foreground ring-1 ring-border">
-        {empty}
-      </div>
-    );
-  }
-
-  return (
-    <div className={gridCls}>
-      {tracks.map((t) => {
-        const isCurrent = current?.id === t.id;
-        return (
-          <div key={t.id} className="group text-left">
-            <button
-              onClick={() => (isCurrent ? toggle() : play(t, tracks))}
-              className="relative block aspect-square w-full overflow-hidden rounded-2xl shadow-card"
-              aria-label={isCurrent && isPlaying ? `Pause ${t.title}` : `Play ${t.title}`}
-            >
-              <img src={t.cover} alt="" className="h-full w-full object-cover transition group-hover:scale-105" />
-              <span
-                className={`absolute bottom-2 right-2 grid ${btnSize} place-items-center rounded-full bg-primary text-primary-foreground shadow-glow transition ${
-                  isCurrent ? "opacity-100" : "opacity-0 group-hover:opacity-100"
-                }`}
-              >
-                <Play className={coverSize === 44 ? "h-4 w-4" : "h-3.5 w-3.5"} fill="currentColor" />
-              </span>
-            </button>
-            <div className={`mt-3 truncate text-sm font-bold ${isCurrent ? "text-primary" : ""}`}>{t.title}</div>
-            <Link
-              to="/artist/$id"
-              params={{ id: t.artistId }}
-              className="block truncate text-xs text-muted-foreground hover:text-foreground"
-            >
-              {t.artist}
-            </Link>
-          </div>
-        );
-      })}
-    </div>
-  );
-}
+// Suppress unused import warnings for the Track type
+export type _Unused = Track;
