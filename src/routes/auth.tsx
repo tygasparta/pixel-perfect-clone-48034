@@ -275,24 +275,10 @@ function DesktopAuth(p: DesktopProps) {
         </div>
       </main>
 
-      <style>{`
-        @keyframes float {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-10px); }
-        }
-      `}</style>
     </div>
   );
 }
 
-function Stat({ icon, value, label }: { icon: React.ReactNode; value: string; label: string }) {
-  return (
-    <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 backdrop-blur">
-      <div className="flex items-center gap-2 text-primary">{icon}<span className="text-xs uppercase tracking-wider text-muted-foreground">{label}</span></div>
-      <p className="mt-1 text-2xl font-black">{value}</p>
-    </div>
-  );
-}
 
 function Field({
   label, value, onChange, type = "text", required, minLength, placeholder,
