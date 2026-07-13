@@ -1,12 +1,14 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Bell, ChevronRight, Play, Pause, Mail, ChevronDown, ArrowLeft, ArrowRight, Heart, ListPlus, Radio } from "lucide-react";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { TrackRow } from "@/components/track-row";
 import { RecommendedForYou } from "@/components/recommended-for-you";
 import { SearchCommand } from "@/components/search-command";
-import { demoTracks, madeForYou } from "@/lib/mock-data";
+import { TrackDetailModal } from "@/components/track-detail-modal";
+import { demoTracks, madeForYou, type Track } from "@/lib/mock-data";
 import { usePlayer } from "@/lib/player";
 import { getTrendingTracks, getNewReleases, getRecentlyPlayed, getTopArtists } from "@/lib/catalog.functions";
 import { dbTrackToTrack } from "@/lib/track-mapper";
@@ -169,6 +171,12 @@ function DesktopHome() {
   const fetchRecent = useServerFn(getRecentlyPlayed);
   const fetchTopArtists = useServerFn(getTopArtists);
   const { current, isPlaying, play, toggle } = usePlayer();
+  const [detailTrack, setDetailTrack] = useState<Track | null>(null);
+  const [detailQueue, setDetailQueue] = useState<Track[]>([]);
+  const openDetail = (t: Track, q: Track[]) => {
+    setDetailQueue(q);
+    setDetailTrack(t);
+  };
 
   const trendingQ = useQuery({
     queryKey: ["catalog", "trending", 12],
@@ -340,18 +348,21 @@ function DesktopHome() {
               {trendingRow.slice(0, 6).map((t, i) => {
                 const isCurrent = current?.id === t.id;
                 return (
-                  <button
-                    key={t.id}
-                    onClick={() => (isCurrent ? toggle() : play(t, trendingRow))}
-                    className="group text-left"
-                  >
-                    <div className="relative aspect-square overflow-hidden rounded-2xl shadow-card">
+                  <div key={t.id} className="group text-left">
+                    <div
+                      onClick={() => openDetail(t, trendingRow)}
+                      className="relative aspect-square cursor-pointer overflow-hidden rounded-2xl shadow-card"
+                    >
                       <img src={t.cover} alt="" className="h-full w-full object-cover transition group-hover:scale-105" />
                       <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/80 to-transparent" />
                       <div className="absolute left-2 top-2 rounded-md bg-black/60 px-1.5 py-0.5 text-[10px] font-black text-white backdrop-blur">
                         #{i + 1}
                       </div>
-                      <span
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          isCurrent ? toggle() : play(t, trendingRow);
+                        }}
                         className={`absolute bottom-2 right-2 grid h-10 w-10 place-items-center rounded-full bg-primary text-primary-foreground shadow-glow transition ${
                           isCurrent ? "opacity-100" : "opacity-0 group-hover:opacity-100"
                         }`}
@@ -361,11 +372,16 @@ function DesktopHome() {
                         ) : (
                           <Play className="h-4 w-4" fill="currentColor" />
                         )}
-                      </span>
+                      </button>
                     </div>
-                    <div className={`mt-2 truncate text-sm font-bold ${isCurrent ? "text-primary" : ""}`}>{t.title}</div>
+                    <button
+                      onClick={() => openDetail(t, trendingRow)}
+                      className={`mt-2 block w-full truncate text-left text-sm font-bold ${isCurrent ? "text-primary" : ""}`}
+                    >
+                      {t.title}
+                    </button>
                     <div className="truncate text-xs text-muted-foreground">{t.artist}</div>
-                  </button>
+                  </div>
                 );
               })}
             </div>
@@ -383,20 +399,36 @@ function DesktopHome() {
                 {newReleasesList.slice(0, 5).map((t) => {
                   const isCurrent = current?.id === t.id;
                   return (
-                    <button
-                      key={t.id}
-                      onClick={() => (isCurrent ? toggle() : play(t, newReleasesList))}
-                      className="group text-left"
-                    >
-                      <div className="relative aspect-square overflow-hidden rounded-xl shadow-card">
+                    <div key={t.id} className="group text-left">
+                      <div
+                        onClick={() => openDetail(t, newReleasesList)}
+                        className="relative aspect-square cursor-pointer overflow-hidden rounded-xl shadow-card"
+                      >
                         <img src={t.cover} alt="" className="h-full w-full object-cover transition group-hover:scale-105" />
-                        <span className="absolute bottom-1.5 right-1.5 grid h-8 w-8 place-items-center rounded-full bg-primary text-primary-foreground opacity-0 shadow-glow transition group-hover:opacity-100">
-                          <Play className="h-3.5 w-3.5" fill="currentColor" />
-                        </span>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            isCurrent ? toggle() : play(t, newReleasesList);
+                          }}
+                          className={`absolute bottom-1.5 right-1.5 grid h-8 w-8 place-items-center rounded-full bg-primary text-primary-foreground shadow-glow transition ${
+                            isCurrent ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+                          }`}
+                        >
+                          {isCurrent && isPlaying ? (
+                            <Pause className="h-3.5 w-3.5" fill="currentColor" />
+                          ) : (
+                            <Play className="h-3.5 w-3.5" fill="currentColor" />
+                          )}
+                        </button>
                       </div>
-                      <div className={`mt-2 truncate text-xs font-bold ${isCurrent ? "text-primary" : ""}`}>{t.title}</div>
+                      <button
+                        onClick={() => openDetail(t, newReleasesList)}
+                        className={`mt-2 block w-full truncate text-left text-xs font-bold ${isCurrent ? "text-primary" : ""}`}
+                      >
+                        {t.title}
+                      </button>
                       <div className="truncate text-[11px] text-muted-foreground">{t.artist}</div>
-                    </button>
+                    </div>
                   );
                 })}
               </div>
@@ -520,6 +552,11 @@ function DesktopHome() {
           </div>
         </aside>
       </div>
+      <TrackDetailModal
+        track={detailTrack}
+        queue={detailQueue}
+        onOpenChange={(o) => !o && setDetailTrack(null)}
+      />
     </div>
   );
 }
