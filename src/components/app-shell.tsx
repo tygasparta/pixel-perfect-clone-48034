@@ -1,8 +1,17 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Home, Search, Library, Upload, User, BarChart3, Wallet, Bell, Compass, Heart, Disc3, Users, ListMusic, Download, History, Plus, Crown } from "lucide-react";
+import { Home, Search, Library, Upload, User, BarChart3, Wallet, Bell, Compass, Heart, Disc3, Users, ListMusic, Download, History, Plus, Crown, ChevronDown } from "lucide-react";
 import type { ReactNode } from "react";
 import { MiniPlayer } from "./mini-player";
 import { BeatifyLogo } from "./logo";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+
 
 type LibraryTab = "All" | "Playlists" | "Albums" | "Songs" | "Podcasts" | "Liked" | "Artists" | "Downloads" | "History";
 type NavItem = {
