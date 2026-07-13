@@ -198,8 +198,31 @@ function DesktopHome() {
     new Map(demoTracks.map((t) => [t.artistId, { id: t.artistId, name: t.artist, cover: t.cover }])).values()
   ).slice(0, 5);
 
+  // Build the mix from recent listening (shuffled), falling back to trending/demo
+  const mixQueue = (() => {
+    const source = recent.length > 0 ? recent : trending.length > 0 ? trending : demoTracks;
+    const arr = source.slice(0, 12);
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  });
+
+  const isMixPlaying = isPlaying && current != null && continueListening.some((t) => t.id === current.id);
+
   const playMix = () => {
-    if (continueListening.length > 0) play(continueListening[0], continueListening);
+    if (isMixPlaying) {
+      toggle();
+      return;
+    }
+    if (current && continueListening.some((t) => t.id === current.id)) {
+      // Same mix, just resume
+      toggle();
+      return;
+    }
+    const queue = mixQueue();
+    if (queue.length > 0) play(queue[0], queue);
   };
 
   return (
