@@ -16,7 +16,23 @@ const searchSchema = z.object({
   q: fallback(z.string(), "").default(""),
   genre: fallback(z.string(), "").default(""),
   tab: fallback(z.string(), "all").default("all"),
+  sort: fallback(z.string(), "relevant").default("relevant"),
+  duration: fallback(z.string(), "any").default("any"),
 });
+
+type SearchState = z.infer<typeof searchSchema>;
+
+const SORT_OPTIONS: Array<{ id: SearchState["sort"]; label: string }> = [
+  { id: "relevant", label: "Most Relevant" },
+  { id: "popular", label: "Popular" },
+  { id: "newest", label: "Newest" },
+];
+const DURATION_OPTIONS: Array<{ id: SearchState["duration"]; label: string }> = [
+  { id: "any", label: "Any length" },
+  { id: "short", label: "< 2 min" },
+  { id: "medium", label: "2–5 min" },
+  { id: "long", label: "5 min+" },
+];
 
 export const Route = createFileRoute("/_authenticated/search")({
   validateSearch: zodValidator(searchSchema),
