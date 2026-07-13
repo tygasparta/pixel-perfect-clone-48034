@@ -3,6 +3,7 @@ import { Home, Search, Library, Upload, User, BarChart3, Wallet, Bell, Compass, 
 import type { ReactNode } from "react";
 import { MiniPlayer } from "./mini-player";
 import { BeatifyLogo } from "./logo";
+import { SearchCommand } from "./search-command";
 import {
   DropdownMenu,
   DropdownMenuContent,
