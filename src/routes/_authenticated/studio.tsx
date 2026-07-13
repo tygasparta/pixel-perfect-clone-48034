@@ -150,6 +150,11 @@ function StudioPage() {
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [collapsed, setCollapsed] = useState(false);
+  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>(
+    () => Object.fromEntries(SIDEBAR_GROUPS.map((g) => [g.id, true]))
+  );
+  const toggleGroup = (id: string) =>
+    setOpenGroups((prev) => ({ ...prev, [id]: !prev[id] }));
 
   // Auto-collapse the Studio sidebar on tablet widths so the workspace doesn't feel cramped
   useEffect(() => {
