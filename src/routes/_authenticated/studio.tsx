@@ -12,7 +12,7 @@ import {
   Share2, Image as ImageIcon, Sparkles, CheckCircle2, AlertCircle,
   GripVertical, X, Music, Loader2, Globe, DollarSign, Lock, Radio,
   PenLine, Users2, ShieldCheck, Package, Star, Mic2, Headphones,
-  Menu, Plus, Check,
+  Menu, Plus, Check, ChevronDown, PanelLeftClose, PanelLeftOpen,
 } from "lucide-react";
 import { BeatifyLogo } from "@/components/logo";
 import { supabase } from "@/integrations/supabase/client";
