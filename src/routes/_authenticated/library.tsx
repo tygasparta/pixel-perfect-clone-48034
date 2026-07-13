@@ -709,6 +709,11 @@ function HistoryTab({
   );
   const mapped = filtered.map(dbTrackToTrack);
   const { current, isPlaying, play, toggle } = usePlayer();
+  const { visible, sentinelRef, hasMore } = useInfiniteVisible({
+    total: filtered.length,
+    pageSize: 30,
+    resetKey: q,
+  });
 
   if (loading) return <LoadingBlock />;
   if (entries.length === 0)
