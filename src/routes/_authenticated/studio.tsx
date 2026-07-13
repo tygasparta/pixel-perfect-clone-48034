@@ -457,7 +457,7 @@ function StudioPage() {
           </div>
 
           {/* Right live preview panel */}
-          <aside className="hidden lg:flex w-[340px] shrink-0 flex-col border-l border-white/[0.06] bg-[#0a0a0a] overflow-y-auto">
+          <aside className="hidden xl:flex w-[320px] 2xl:w-[360px] shrink-0 flex-col border-l border-white/[0.06] bg-[#0a0a0a] overflow-y-auto">
             <LivePreview
               title={title} artistName={artistName} genre={genre}
               releaseDate={releaseDate} tracks={tracks} artwork={artwork}
