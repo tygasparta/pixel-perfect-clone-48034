@@ -399,20 +399,36 @@ function DesktopHome() {
                 {newReleasesList.slice(0, 5).map((t) => {
                   const isCurrent = current?.id === t.id;
                   return (
-                    <button
-                      key={t.id}
-                      onClick={() => (isCurrent ? toggle() : play(t, newReleasesList))}
-                      className="group text-left"
-                    >
-                      <div className="relative aspect-square overflow-hidden rounded-xl shadow-card">
+                    <div key={t.id} className="group text-left">
+                      <div
+                        onClick={() => openDetail(t, newReleasesList)}
+                        className="relative aspect-square cursor-pointer overflow-hidden rounded-xl shadow-card"
+                      >
                         <img src={t.cover} alt="" className="h-full w-full object-cover transition group-hover:scale-105" />
-                        <span className="absolute bottom-1.5 right-1.5 grid h-8 w-8 place-items-center rounded-full bg-primary text-primary-foreground opacity-0 shadow-glow transition group-hover:opacity-100">
-                          <Play className="h-3.5 w-3.5" fill="currentColor" />
-                        </span>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            isCurrent ? toggle() : play(t, newReleasesList);
+                          }}
+                          className={`absolute bottom-1.5 right-1.5 grid h-8 w-8 place-items-center rounded-full bg-primary text-primary-foreground shadow-glow transition ${
+                            isCurrent ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+                          }`}
+                        >
+                          {isCurrent && isPlaying ? (
+                            <Pause className="h-3.5 w-3.5" fill="currentColor" />
+                          ) : (
+                            <Play className="h-3.5 w-3.5" fill="currentColor" />
+                          )}
+                        </button>
                       </div>
-                      <div className={`mt-2 truncate text-xs font-bold ${isCurrent ? "text-primary" : ""}`}>{t.title}</div>
+                      <button
+                        onClick={() => openDetail(t, newReleasesList)}
+                        className={`mt-2 block w-full truncate text-left text-xs font-bold ${isCurrent ? "text-primary" : ""}`}
+                      >
+                        {t.title}
+                      </button>
                       <div className="truncate text-[11px] text-muted-foreground">{t.artist}</div>
-                    </button>
+                    </div>
                   );
                 })}
               </div>
