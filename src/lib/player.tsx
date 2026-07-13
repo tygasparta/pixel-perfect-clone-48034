@@ -97,6 +97,22 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
     el.currentTime = frac * duration;
   };
 
+  const playNext = (track: Track) => {
+    setQueue((q) => {
+      const filtered = q.filter((t) => t.id !== track.id);
+      if (!current) return [track, ...filtered];
+      const idx = filtered.findIndex((t) => t.id === current.id);
+      if (idx === -1) return [track, ...filtered];
+      const copy = filtered.slice();
+      copy.splice(idx + 1, 0, track);
+      return copy;
+    });
+  };
+
+  const addToQueue = (track: Track) => {
+    setQueue((q) => (q.some((t) => t.id === track.id) ? q : [...q, track]));
+  };
+
   return (
     <Ctx.Provider
       value={{
@@ -111,6 +127,8 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
         next: nextInternal,
         prev,
         seek,
+        playNext,
+        addToQueue,
         audioRef,
       }}
     >
