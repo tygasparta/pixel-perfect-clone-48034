@@ -143,7 +143,33 @@ export function AppShell({ children }: { children: ReactNode }) {
             </div>
           </div>
         </aside>
+            </Link>
+          </div>
+        </aside>
         <div className="flex min-w-0 flex-1 flex-col">
+          <header className="sticky top-0 z-30 flex h-14 items-center justify-end gap-3 border-b border-border/60 bg-background/70 px-6 backdrop-blur-xl">
+            <DropdownMenu>
+              <DropdownMenuTrigger className="group flex items-center gap-2 rounded-full border border-border/60 bg-white/5 py-1 pl-1 pr-3 text-sm font-semibold text-foreground transition hover:bg-white/10">
+                <span className="grid h-7 w-7 place-items-center rounded-full bg-gradient-to-br from-primary to-primary/60 text-primary-foreground">
+                  <User className="h-3.5 w-3.5" />
+                </span>
+                Account
+                <ChevronDown className="h-3.5 w-3.5 text-muted-foreground transition group-data-[state=open]:rotate-180" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                {desktopAccount.map(({ to, label, icon: Icon }) => (
+                  <DropdownMenuItem key={to} asChild>
+                    <Link to={to} className="flex items-center gap-2">
+                      <Icon className="h-4 w-4" />
+                      {label}
+                    </Link>
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </header>
           <main className="min-w-0 flex-1 pb-28">{children}</main>
         </div>
       </div>
@@ -155,6 +181,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           aria-label="Beatify home"
           className="pointer-events-auto fixed left-3 top-2 z-30 rounded-full bg-background/60 p-1.5 shadow-glow backdrop-blur"
         >
+
           <BeatifyLogo size={48} />
         </Link>
 
