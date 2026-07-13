@@ -74,67 +74,68 @@ export function AppShell({ children }: { children: ReactNode }) {
     <div className="min-h-screen bg-background md:flex md:min-h-screen md:flex-col">
       {/* Desktop shell */}
       <div className="hidden md:flex md:min-h-screen md:flex-1">
-        <aside className="sticky top-0 flex h-screen w-64 shrink-0 flex-col gap-1 border-r border-border/60 bg-black/40 px-3 py-5">
-          <Link to="/home" className="mb-4 flex items-center gap-2 px-2">
+        <aside className="sticky top-0 flex h-screen w-64 shrink-0 flex-col border-r border-border/60 bg-black/40 px-3 py-4">
+          <Link to="/home" className="mb-4 flex shrink-0 items-center gap-2 px-2">
             <BeatifyLogo size={44} withWordmark wordmarkClassName="text-xl" />
           </Link>
 
-          <NavGroup items={desktopPrimary} pathname={pathname} searchStr={searchStr} />
+          <div className="min-h-0 flex-1 overflow-y-auto pr-1">
+            <NavGroup items={desktopPrimary} pathname={pathname} searchStr={searchStr} />
 
-          <div className="mt-5 mb-2 px-3 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-            Your Library
+            <div className="mt-5 mb-2 px-3 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+              Your Library
+            </div>
+            <NavGroup items={desktopLibrary} pathname={pathname} searchStr={searchStr} />
+
+            <div className="mt-5 mb-2 flex items-center justify-between px-3">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Playlists</span>
+              <Link
+                to="/library"
+                search={{ tab: "Playlists" as LibraryTab }}
+                aria-label="New playlist"
+                className="grid h-6 w-6 place-items-center rounded-full text-muted-foreground transition hover:bg-white/10 hover:text-foreground"
+              >
+                <Plus className="h-3.5 w-3.5" />
+              </Link>
+            </div>
+            <ul className="flex flex-col gap-1 pb-3">
+              {sidebarPlaylists.map((p) => {
+                const active = pathname === "/library" && searchStr.includes(`playlist=${encodeURIComponent(p.name)}`);
+                return (
+                  <li key={p.name}>
+                    <Link
+                      to="/library"
+                      search={{ tab: "Playlists" as LibraryTab, playlist: p.name }}
+                      className={`flex min-h-12 items-center gap-3 rounded-lg px-2 py-1.5 transition ${active ? "bg-white/10" : "hover:bg-white/5"}`}
+                    >
+                      <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-md bg-gradient-to-br ${p.gradient} text-primary-foreground`}>
+                        <ListMusic className="h-4 w-4" />
+                      </span>
+                      <span className="min-w-0 flex-1">
+                        <span className={`block truncate text-[13px] font-semibold leading-5 ${active ? "text-primary" : "text-foreground"}`}>{p.name}</span>
+                        <span className="block text-[10px] leading-4 text-muted-foreground">{p.songs} songs</span>
+                      </span>
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
           </div>
-          <NavGroup items={desktopLibrary} pathname={pathname} searchStr={searchStr} />
 
-          <div className="mt-5 mb-2 flex items-center justify-between px-3">
-            <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Playlists</span>
-            <Link
-              to="/library"
-              search={{ tab: "Playlists" as LibraryTab }}
-              aria-label="New playlist"
-              className="grid h-5 w-5 place-items-center rounded-full text-muted-foreground hover:bg-white/10 hover:text-foreground"
-            >
-              <Plus className="h-3.5 w-3.5" />
-            </Link>
-          </div>
-          <ul className="flex flex-col gap-0.5 overflow-y-auto pr-1">
-            {sidebarPlaylists.map((p) => {
-              const active = pathname === "/library" && searchStr.includes(`playlist=${encodeURIComponent(p.name)}`);
-              return (
-                <li key={p.name}>
-                  <Link
-                    to="/library"
-                    search={{ tab: "Playlists" as LibraryTab, playlist: p.name }}
-                    className={`flex items-center gap-3 rounded-lg px-2 py-1.5 transition ${active ? "bg-white/10" : "hover:bg-white/5"}`}
-                  >
-                    <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-md bg-gradient-to-br ${p.gradient} text-white`}>
-                      <ListMusic className="h-4 w-4" />
-                    </span>
-                    <span className="min-w-0 flex-1">
-                      <span className={`block truncate text-[13px] font-semibold ${active ? "text-primary" : ""}`}>{p.name}</span>
-                      <span className="block text-[10px] text-muted-foreground">{p.songs} songs</span>
-                    </span>
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-
-          <div className="mt-auto pt-4">
+          <div className="shrink-0 border-t border-border/50 pt-3">
             <Link
               to="/premium"
-              className="block relative overflow-hidden rounded-2xl border border-primary/30 bg-gradient-to-br from-primary/20 via-primary/5 to-transparent p-4 transition hover:border-primary/60"
+              className="relative block overflow-hidden rounded-xl border border-primary/35 bg-primary/10 p-3.5 transition hover:border-primary/60 hover:bg-primary/15"
             >
-              <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-primary/20 blur-2xl" />
               <div className="relative">
-                <div className="mb-1 flex items-center gap-1.5 text-primary">
+                <div className="mb-1.5 flex items-center gap-1.5 text-primary">
                   <Crown className="h-3.5 w-3.5" />
                   <span className="text-[10px] font-black uppercase tracking-widest">Go Premium</span>
                 </div>
                 <p className="text-[11px] leading-snug text-muted-foreground">
                   Ad-free music, offline listening and more.
                 </p>
-                <span className="mt-3 block w-full rounded-lg bg-primary py-1.5 text-center text-xs font-bold text-primary-foreground shadow-glow transition hover:brightness-110">
+                <span className="mt-3 block w-full rounded-lg bg-primary py-2 text-center text-xs font-bold text-primary-foreground shadow-glow transition hover:brightness-110">
                   Upgrade Now
                 </span>
               </div>
