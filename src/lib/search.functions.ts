@@ -8,10 +8,12 @@ export type SearchResults = { tracks: RecTrack[]; artists: SearchArtist[]; genre
 
 export const searchCatalog = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: { q?: string; genre?: string; limit?: number }) => ({
+  .inputValidator((data: { q?: string; genre?: string; limit?: number; sort?: string; duration?: string }) => ({
     q: (data.q ?? "").trim().slice(0, 80),
     genre: (data.genre ?? "").trim().slice(0, 40),
     limit: Math.min(Math.max(data.limit ?? 12, 1), 50),
+    sort: (["relevant", "newest", "popular"].includes(data.sort ?? "") ? data.sort : "relevant") as "relevant" | "newest" | "popular",
+    duration: (["any", "short", "medium", "long"].includes(data.duration ?? "") ? data.duration : "any") as "any" | "short" | "medium" | "long",
   }))
   .handler(async ({ data, context }): Promise<SearchResults> => {
     const { supabase } = context;
@@ -30,10 +32,15 @@ export const searchCatalog = createServerFn({ method: "GET" })
     if (data.genre.length >= 1) {
       query = query.ilike("genre", data.genre);
     }
+    if (data.duration === "short") query = query.lt("duration_seconds", 120);
+    else if (data.duration === "medium") query = query.gte("duration_seconds", 120).lte("duration_seconds", 300);
+    else if (data.duration === "long") query = query.gt("duration_seconds", 300);
 
-    const { data: tracks, error } = await query
-      .order("play_count", { ascending: false })
-      .limit(data.limit);
+    if (data.sort === "newest") query = query.order("created_at", { ascending: false });
+    else if (data.sort === "popular") query = query.order("play_count", { ascending: false });
+    else query = query.order("play_count", { ascending: false }); // "relevant" — ilike ordered by popularity as tiebreaker
+
+    const { data: tracks, error } = await query.limit(data.limit);
     if (error) throw error;
 
     const artistMap = new Map<string, SearchArtist>();

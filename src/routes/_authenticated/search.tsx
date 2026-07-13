@@ -16,7 +16,21 @@ const searchSchema = z.object({
   q: fallback(z.string(), "").default(""),
   genre: fallback(z.string(), "").default(""),
   tab: fallback(z.string(), "all").default("all"),
+  sort: fallback(z.string(), "relevant").default("relevant"),
+  duration: fallback(z.string(), "any").default("any"),
 });
+
+const SORT_OPTIONS: Array<{ id: string; label: string }> = [
+  { id: "relevant", label: "Most Relevant" },
+  { id: "popular", label: "Popular" },
+  { id: "newest", label: "Newest" },
+];
+const DURATION_OPTIONS: Array<{ id: string; label: string }> = [
+  { id: "any", label: "Any length" },
+  { id: "short", label: "< 2 min" },
+  { id: "medium", label: "2–5 min" },
+  { id: "long", label: "5 min+" },
+];
 
 export const Route = createFileRoute("/_authenticated/search")({
   validateSearch: zodValidator(searchSchema),
@@ -34,7 +48,7 @@ const moodColors = [
 ];
 
 function SearchPage() {
-  const { q, genre, tab } = Route.useSearch();
+  const { q, genre, tab, sort, duration } = Route.useSearch();
   const navigate = useNavigate({ from: "/search" });
   const [input, setInput] = useState(q);
   const [debounced, setDebounced] = useState(q);
@@ -44,21 +58,18 @@ function SearchPage() {
   const runSearch = useServerFn(searchCatalog);
   const fetchTopArtists = useServerFn(getTopArtists);
 
-  // Sync input when URL q changes externally (e.g. clicking a trending chip)
   useEffect(() => setInput(q), [q]);
 
-  // Debounce input -> update URL and query
   useEffect(() => {
     const id = setTimeout(() => {
       setDebounced(input.trim());
       if (input.trim() !== q) {
-        navigate({ search: (prev: { q: string; genre: string; tab: string }) => ({ ...prev, q: input.trim() }), replace: true });
+        navigate({ search: (prev: { q: string; genre: string; tab: string; sort: string; duration: string }) => ({ ...prev, q: input.trim() }), replace: true });
       }
     }, 250);
     return () => clearTimeout(id);
   }, [input]);
 
-  // Load recents from localStorage once
   useEffect(() => {
     try {
       const raw = localStorage.getItem(RECENTS_KEY);
@@ -88,8 +99,8 @@ function SearchPage() {
   const hasQuery = debounced.length >= 1 || genre.length >= 1;
 
   const resultsQ = useQuery({
-    queryKey: ["search-page", debounced, genre, 24],
-    queryFn: () => runSearch({ data: { q: debounced, genre, limit: 24 } }),
+    queryKey: ["search-page", debounced, genre, sort, duration, 24],
+    queryFn: () => runSearch({ data: { q: debounced, genre, limit: 24, sort, duration } }),
     enabled: hasQuery,
     staleTime: 30_000,
   });
@@ -111,18 +122,25 @@ function SearchPage() {
   const submitSearch = (term: string) => {
     pushRecent(term);
     setInput(term);
-    navigate({ search: (prev: { q: string; genre: string; tab: string }) => ({ ...prev, q: term, genre: "" }), replace: false });
+    navigate({ search: (prev: { q: string; genre: string; tab: string; sort: string; duration: string }) => ({ ...prev, q: term, genre: "" }), replace: false });
   };
 
   const applyGenre = (g: string) => {
-    navigate({ search: (prev: { q: string; genre: string; tab: string }) => ({ ...prev, genre: g, q: "" }), replace: false });
+    navigate({ search: (prev: { q: string; genre: string; tab: string; sort: string; duration: string }) => ({ ...prev, genre: g, q: "" }), replace: false });
     setInput("");
   };
 
   const clearAll = () => {
     setInput("");
-    navigate({ search: () => ({ q: "", genre: "", tab: "all" }), replace: true });
+    navigate({ search: () => ({ q: "", genre: "", tab: "all", sort: "relevant", duration: "any" }), replace: true });
   };
+
+  const setSort = (v: string) => navigate({ search: (prev: { q: string; genre: string; tab: string; sort: string; duration: string }) => ({ ...prev, sort: v }), replace: true });
+  const setDuration = (v: string) => navigate({ search: (prev: { q: string; genre: string; tab: string; sort: string; duration: string }) => ({ ...prev, duration: v }), replace: true });
+
+  const hasActiveFilter = sort !== "relevant" || duration !== "any";
+
+
 
   return (
     <div className="mx-auto max-w-5xl px-5 pt-14 md:px-8 md:pt-10">
@@ -158,7 +176,7 @@ function SearchPage() {
         <div className="mb-4 flex items-center gap-2">
           <span className="text-xs text-muted-foreground">Filtering by</span>
           <button
-            onClick={() => navigate({ search: (prev: { q: string; genre: string; tab: string }) => ({ ...prev, genre: "" }) })}
+            onClick={() => navigate({ search: (prev: { q: string; genre: string; tab: string; sort: string; duration: string }) => ({ ...prev, genre: "" }) })}
             className="inline-flex items-center gap-1 rounded-full bg-primary/15 px-3 py-1 text-xs font-bold text-primary ring-1 ring-primary/30"
           >
             {genre}
@@ -175,7 +193,7 @@ function SearchPage() {
             {(["all", "songs", "artists"] as const).map((t) => (
               <button
                 key={t}
-                onClick={() => navigate({ search: (prev: { q: string; genre: string; tab: string }) => ({ ...prev, tab: t }) })}
+                onClick={() => navigate({ search: (prev: { q: string; genre: string; tab: string; sort: string; duration: string }) => ({ ...prev, tab: t }) })}
                 className={`rounded-full px-4 py-1.5 text-xs font-bold capitalize transition ${
                   tab === t
                     ? "bg-primary text-primary-foreground"
@@ -186,6 +204,50 @@ function SearchPage() {
               </button>
             ))}
           </div>
+
+          {/* Sort + duration filters */}
+          <div className="mb-5 flex flex-wrap items-center gap-3 rounded-xl bg-surface/40 p-2.5 ring-1 ring-border">
+            <div className="flex items-center gap-2">
+              <label htmlFor="sort" className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                Sort
+              </label>
+              <select
+                id="sort"
+                value={sort}
+                onChange={(e) => setSort(e.target.value)}
+                className="rounded-full bg-surface px-3 py-1.5 text-xs font-semibold outline-none ring-1 ring-border focus:ring-primary"
+              >
+                {SORT_OPTIONS.map((o) => (
+                  <option key={o.id} value={o.id}>{o.label}</option>
+                ))}
+              </select>
+            </div>
+            <div className="flex flex-wrap items-center gap-1.5">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Duration</span>
+              {DURATION_OPTIONS.map((o) => (
+                <button
+                  key={o.id}
+                  onClick={() => setDuration(o.id)}
+                  className={`rounded-full px-3 py-1.5 text-[11px] font-semibold transition ${
+                    duration === o.id
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-surface text-muted-foreground ring-1 ring-border hover:text-foreground"
+                  }`}
+                >
+                  {o.label}
+                </button>
+              ))}
+            </div>
+            {hasActiveFilter && (
+              <button
+                onClick={() => navigate({ search: (prev: { q: string; genre: string; tab: string; sort: string; duration: string }) => ({ ...prev, sort: "relevant", duration: "any" }), replace: true })}
+                className="ml-auto inline-flex items-center gap-1 rounded-full px-3 py-1 text-[11px] font-semibold text-muted-foreground hover:bg-white/5 hover:text-foreground"
+              >
+                <X className="h-3 w-3" /> Reset filters
+              </button>
+            )}
+          </div>
+
 
           {resultsQ.isLoading && (
             <div className="flex items-center gap-2 py-10 text-sm text-muted-foreground">
