@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { Bell, ChevronRight, Play, Pause, Mail, ChevronDown, ArrowLeft, ArrowRight, Heart, ListPlus, Radio } from "lucide-react";
+import { Bell, ChevronRight, Play, Pause, ChevronDown, Heart, ListPlus, Radio } from "lucide-react";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
