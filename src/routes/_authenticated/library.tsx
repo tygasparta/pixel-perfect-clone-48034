@@ -498,6 +498,12 @@ function LikedTab({ q, loading, tracks }: { q: string; loading: boolean; tracks:
     [tracks, q],
   );
   const mapped = filtered.map(dbTrackToTrack);
+  const { visible, sentinelRef, hasMore } = useInfiniteVisible({
+    total: filtered.length,
+    pageSize: 30,
+    resetKey: q,
+  });
+  const visibleMapped = mapped.slice(0, visible);
   const { play } = usePlayer();
 
   if (loading) return <LoadingBlock />;
