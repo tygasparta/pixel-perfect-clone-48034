@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { UploadCloud, Loader2, AlertCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { publishTrack, UPLOAD_LIMITS } from "@/lib/uploads.functions";
+import { GenrePicker } from "@/components/genre-picker";
 
 export const Route = createFileRoute("/_authenticated/upload")({
   component: UploadPage,
