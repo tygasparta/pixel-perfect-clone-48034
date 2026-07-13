@@ -779,6 +779,7 @@ function HistoryTab({
           );
         })}
       </ul>
+      <InfiniteSentinel sentinelRef={sentinelRef} hasMore={hasMore} />
     </div>
   );
 }
