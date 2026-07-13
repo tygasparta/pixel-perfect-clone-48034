@@ -850,27 +850,28 @@ function PlaylistDetailView({ playlistId, onClose }: { playlistId: string; onClo
                   <MoreHorizontal className="h-5 w-5" />
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="min-w-[180px]">
-                <DropdownMenuItem
-                  onSelect={() => {
-                    const name = window.prompt("Rename playlist", p.name)?.trim();
-                    if (name && name !== p.name) renameMut.mutate({ name });
-                  }}
-                >
-                  Rename
+              <DropdownMenuContent align="end" className="min-w-[200px]">
+                <DropdownMenuItem onSelect={() => setEditOpen(true)}>
+                  Edit details
                 </DropdownMenuItem>
                 <DropdownMenuItem
-                  onSelect={() =>
-                    renameMut.mutate({ name: p.name, is_public: !p.is_public })
-                  }
+                  onSelect={() => {
+                    renameMut.mutate(
+                      { name: p.name, is_public: !p.is_public },
+                      {
+                        onSuccess: () =>
+                          toast.success(
+                            p.is_public ? "Playlist is now private" : "Playlist is now public",
+                          ),
+                      },
+                    );
+                  }}
                 >
                   {p.is_public ? "Make private" : "Make public"}
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
-                  onSelect={() => {
-                    if (confirm(`Delete "${p.name}"? This cannot be undone.`)) deleteMut.mutate();
-                  }}
+                  onSelect={() => setConfirmDeleteOpen(true)}
                   className="text-destructive focus:text-destructive"
                 >
                   Delete playlist
