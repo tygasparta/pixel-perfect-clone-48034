@@ -22,19 +22,44 @@ function ArtistPage() {
 
   const fetchFollowed = useServerFn(getFollowedArtists);
   const doToggleFollow = useServerFn(toggleFollowArtist);
+  const FOLLOWED_KEY = ["library", "artists"] as const;
   const followedQ = useQuery({
-    queryKey: ["library", "followed-artists"],
+    queryKey: FOLLOWED_KEY,
     queryFn: () => fetchFollowed(),
     staleTime: 30_000,
   });
+  type Followed = NonNullable<typeof followedQ.data>;
   const isFollowing = (followedQ.data ?? []).some((a) => a.id === id);
   const followMut = useMutation({
     mutationFn: () => doToggleFollow({ data: { artistId: id } }),
+    onMutate: async () => {
+      await queryClient.cancelQueries({ queryKey: FOLLOWED_KEY });
+      const prev = queryClient.getQueryData<Followed>(FOLLOWED_KEY);
+      const currentlyFollowing = (prev ?? []).some((a) => a.id === id);
+      if (currentlyFollowing) {
+        queryClient.setQueryData<Followed>(FOLLOWED_KEY, (old) => (old ?? []).filter((a) => a.id !== id));
+      } else {
+        const optimistic: Followed[number] = {
+          id,
+          name: artist.artist,
+          avatar_url: artist.cover ?? null,
+          monthly_listeners: 0,
+          is_verified: false,
+        };
+        queryClient.setQueryData<Followed>(FOLLOWED_KEY, (old) => [optimistic, ...(old ?? [])]);
+      }
+      return { prev, wasFollowing: currentlyFollowing };
+    },
+    onError: (_e, _v, ctx) => {
+      if (ctx?.prev) queryClient.setQueryData(FOLLOWED_KEY, ctx.prev);
+      toast.error("Couldn't update follow");
+    },
     onSuccess: (res) => {
-      queryClient.invalidateQueries({ queryKey: ["library"] });
       toast.success(res.following ? `Following ${artist.artist}` : `Unfollowed ${artist.artist}`);
     },
-    onError: () => toast.error("Couldn't update follow"),
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["library"] });
+    },
   });
 
   return (

@@ -32,6 +32,7 @@ import {
   removePlayHistoryEntry,
   deletePlaylist,
   getFollowedArtists,
+  toggleFollowArtist,
   getLibraryCounts,
   getLikedTracks,
   getPlayHistory,
@@ -553,6 +554,27 @@ function LikedTab({ q, loading, tracks }: { q: string; loading: boolean; tracks:
 // Artists tab
 // ────────────────────────────────────────────────
 function ArtistsTab({ q, loading, artists }: { q: string; loading: boolean; artists: Awaited<ReturnType<typeof getFollowedArtists>> }) {
+  const queryClient = useQueryClient();
+  const doToggleFollow = useServerFn(toggleFollowArtist);
+  const FOLLOWED_KEY = ["library", "artists"] as const;
+  type Followed = Awaited<ReturnType<typeof getFollowedArtists>>;
+
+  const unfollowMut = useMutation({
+    mutationFn: (artistId: string) => doToggleFollow({ data: { artistId } }),
+    onMutate: async (artistId) => {
+      await queryClient.cancelQueries({ queryKey: FOLLOWED_KEY });
+      const prev = queryClient.getQueryData<Followed>(FOLLOWED_KEY);
+      queryClient.setQueryData<Followed>(FOLLOWED_KEY, (old) => (old ?? []).filter((a) => a.id !== artistId));
+      return { prev };
+    },
+    onError: (_e, _v, ctx) => {
+      if (ctx?.prev) queryClient.setQueryData(FOLLOWED_KEY, ctx.prev);
+      toast.error("Couldn't unfollow");
+    },
+    onSuccess: () => toast.success("Unfollowed"),
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ["library"] }),
+  });
+
   const filtered = useMemo(
     () => artists.filter((a) => a.name.toLowerCase().includes(q.trim().toLowerCase())),
     [artists, q],
@@ -578,33 +600,46 @@ function ArtistsTab({ q, loading, artists }: { q: string; loading: boolean; arti
     <>
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5">
         {visibleArtists.map((a) => (
-          <Link
+          <div
             key={a.id}
-            to="/artist/$id"
-            params={{ id: a.id }}
-            className="group flex flex-col items-center gap-3 rounded-2xl bg-surface/60 p-4 text-center ring-1 ring-border transition hover:bg-surface-2"
+            className="group relative flex flex-col items-center gap-3 rounded-2xl bg-surface/60 p-4 text-center ring-1 ring-border transition hover:bg-surface-2"
           >
-            {a.avatar_url ? (
-              <img src={a.avatar_url} alt="" className="h-28 w-28 rounded-full object-cover ring-1 ring-border" />
-            ) : (
-              <div className="grid h-28 w-28 place-items-center rounded-full bg-primary/20 text-2xl font-black text-primary">
-                {a.name.slice(0, 1).toUpperCase()}
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                unfollowMut.mutate(a.id);
+              }}
+              disabled={unfollowMut.isPending}
+              className="absolute right-2 top-2 grid h-8 w-8 place-items-center rounded-full bg-black/40 text-muted-foreground opacity-0 backdrop-blur transition hover:text-destructive group-hover:opacity-100 disabled:opacity-50"
+              aria-label={`Unfollow ${a.name}`}
+              title="Unfollow"
+            >
+              <X className="h-4 w-4" />
+            </button>
+            <Link to="/artist/$id" params={{ id: a.id }} className="flex flex-col items-center gap-3">
+              {a.avatar_url ? (
+                <img src={a.avatar_url} alt="" className="h-28 w-28 rounded-full object-cover ring-1 ring-border" />
+              ) : (
+                <div className="grid h-28 w-28 place-items-center rounded-full bg-primary/20 text-2xl font-black text-primary">
+                  {a.name.slice(0, 1).toUpperCase()}
+                </div>
+              )}
+              <div>
+                <div className="flex items-center justify-center gap-1 truncate text-sm font-bold">
+                  {a.name}
+                  {a.is_verified && (
+                    <span className="grid h-4 w-4 place-items-center rounded-full bg-primary text-[9px] text-primary-foreground">
+                      ✓
+                    </span>
+                  )}
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  {Intl.NumberFormat("en", { notation: "compact" }).format(a.monthly_listeners)} monthly
+                </div>
               </div>
-            )}
-            <div>
-              <div className="flex items-center justify-center gap-1 truncate text-sm font-bold">
-                {a.name}
-                {a.is_verified && (
-                  <span className="grid h-4 w-4 place-items-center rounded-full bg-primary text-[9px] text-primary-foreground">
-                    ✓
-                  </span>
-                )}
-              </div>
-              <div className="text-xs text-muted-foreground">
-                {Intl.NumberFormat("en", { notation: "compact" }).format(a.monthly_listeners)} monthly
-              </div>
-            </div>
-          </Link>
+            </Link>
+          </div>
         ))}
       </div>
       <InfiniteSentinel sentinelRef={sentinelRef} hasMore={hasMore} />
