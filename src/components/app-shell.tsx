@@ -48,7 +48,7 @@ const desktopLibrary: readonly NavItem[] = [
 ];
 
 const desktopAccount: readonly NavItem[] = [
-  { to: "/upload", label: "Upload", icon: Upload },
+  { to: "/studio", label: "Beatify Studio", icon: Upload },
   { to: "/analytics", label: "Analytics", icon: BarChart3 },
   { to: "/wallet", label: "Wallet", icon: Wallet },
   { to: "/notifications", label: "Notifications", icon: Bell },

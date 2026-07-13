@@ -15,6 +15,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedWalletRouteImport } from './routes/_authenticated/wallet'
 import { Route as AuthenticatedUploadRouteImport } from './routes/_authenticated/upload'
+import { Route as AuthenticatedStudioRouteImport } from './routes/_authenticated/studio'
 import { Route as AuthenticatedSearchRouteImport } from './routes/_authenticated/search'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
 import { Route as AuthenticatedPremiumRouteImport } from './routes/_authenticated/premium'
@@ -52,6 +53,11 @@ const AuthenticatedWalletRoute = AuthenticatedWalletRouteImport.update({
 const AuthenticatedUploadRoute = AuthenticatedUploadRouteImport.update({
   id: '/upload',
   path: '/upload',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedStudioRoute = AuthenticatedStudioRouteImport.update({
+  id: '/studio',
+  path: '/studio',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedSearchRoute = AuthenticatedSearchRouteImport.update({
@@ -113,6 +119,7 @@ export interface FileRoutesByFullPath {
   '/premium': typeof AuthenticatedPremiumRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/search': typeof AuthenticatedSearchRoute
+  '/studio': typeof AuthenticatedStudioRoute
   '/upload': typeof AuthenticatedUploadRoute
   '/wallet': typeof AuthenticatedWalletRoute
   '/artist/$id': typeof AuthenticatedArtistIdRoute
@@ -129,6 +136,7 @@ export interface FileRoutesByTo {
   '/premium': typeof AuthenticatedPremiumRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/search': typeof AuthenticatedSearchRoute
+  '/studio': typeof AuthenticatedStudioRoute
   '/upload': typeof AuthenticatedUploadRoute
   '/wallet': typeof AuthenticatedWalletRoute
   '/artist/$id': typeof AuthenticatedArtistIdRoute
@@ -147,6 +155,7 @@ export interface FileRoutesById {
   '/_authenticated/premium': typeof AuthenticatedPremiumRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/_authenticated/search': typeof AuthenticatedSearchRoute
+  '/_authenticated/studio': typeof AuthenticatedStudioRoute
   '/_authenticated/upload': typeof AuthenticatedUploadRoute
   '/_authenticated/wallet': typeof AuthenticatedWalletRoute
   '/_authenticated/artist/$id': typeof AuthenticatedArtistIdRoute
@@ -165,6 +174,7 @@ export interface FileRouteTypes {
     | '/premium'
     | '/profile'
     | '/search'
+    | '/studio'
     | '/upload'
     | '/wallet'
     | '/artist/$id'
@@ -181,6 +191,7 @@ export interface FileRouteTypes {
     | '/premium'
     | '/profile'
     | '/search'
+    | '/studio'
     | '/upload'
     | '/wallet'
     | '/artist/$id'
@@ -198,6 +209,7 @@ export interface FileRouteTypes {
     | '/_authenticated/premium'
     | '/_authenticated/profile'
     | '/_authenticated/search'
+    | '/_authenticated/studio'
     | '/_authenticated/upload'
     | '/_authenticated/wallet'
     | '/_authenticated/artist/$id'
@@ -252,6 +264,13 @@ declare module '@tanstack/react-router' {
       path: '/upload'
       fullPath: '/upload'
       preLoaderRoute: typeof AuthenticatedUploadRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/studio': {
+      id: '/_authenticated/studio'
+      path: '/studio'
+      fullPath: '/studio'
+      preLoaderRoute: typeof AuthenticatedStudioRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/search': {
@@ -329,6 +348,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedPremiumRoute: typeof AuthenticatedPremiumRoute
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
   AuthenticatedSearchRoute: typeof AuthenticatedSearchRoute
+  AuthenticatedStudioRoute: typeof AuthenticatedStudioRoute
   AuthenticatedUploadRoute: typeof AuthenticatedUploadRoute
   AuthenticatedWalletRoute: typeof AuthenticatedWalletRoute
   AuthenticatedArtistIdRoute: typeof AuthenticatedArtistIdRoute
@@ -343,6 +363,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedPremiumRoute: AuthenticatedPremiumRoute,
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
   AuthenticatedSearchRoute: AuthenticatedSearchRoute,
+  AuthenticatedStudioRoute: AuthenticatedStudioRoute,
   AuthenticatedUploadRoute: AuthenticatedUploadRoute,
   AuthenticatedWalletRoute: AuthenticatedWalletRoute,
   AuthenticatedArtistIdRoute: AuthenticatedArtistIdRoute,
