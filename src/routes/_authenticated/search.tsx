@@ -64,7 +64,7 @@ function SearchPage() {
     const id = setTimeout(() => {
       setDebounced(input.trim());
       if (input.trim() !== q) {
-        navigate({ search: (prev) => ({ ...prev, q: input.trim() }), replace: true });
+        navigate({ search: (prev: { q: string; genre: string; tab: string; sort: string; duration: string }) => ({ ...prev, q: input.trim() }), replace: true });
       }
     }, 250);
     return () => clearTimeout(id);
@@ -122,11 +122,11 @@ function SearchPage() {
   const submitSearch = (term: string) => {
     pushRecent(term);
     setInput(term);
-    navigate({ search: (prev) => ({ ...prev, q: term, genre: "" }), replace: false });
+    navigate({ search: (prev: { q: string; genre: string; tab: string; sort: string; duration: string }) => ({ ...prev, q: term, genre: "" }), replace: false });
   };
 
   const applyGenre = (g: string) => {
-    navigate({ search: (prev) => ({ ...prev, genre: g, q: "" }), replace: false });
+    navigate({ search: (prev: { q: string; genre: string; tab: string; sort: string; duration: string }) => ({ ...prev, genre: g, q: "" }), replace: false });
     setInput("");
   };
 
@@ -135,8 +135,8 @@ function SearchPage() {
     navigate({ search: () => ({ q: "", genre: "", tab: "all", sort: "relevant", duration: "any" }), replace: true });
   };
 
-  const setSort = (v: string) => navigate({ search: (prev) => ({ ...prev, sort: v }), replace: true });
-  const setDuration = (v: string) => navigate({ search: (prev) => ({ ...prev, duration: v }), replace: true });
+  const setSort = (v: string) => navigate({ search: (prev: { q: string; genre: string; tab: string; sort: string; duration: string }) => ({ ...prev, sort: v }), replace: true });
+  const setDuration = (v: string) => navigate({ search: (prev: { q: string; genre: string; tab: string; sort: string; duration: string }) => ({ ...prev, duration: v }), replace: true });
 
   const hasActiveFilter = sort !== "relevant" || duration !== "any";
 
