@@ -98,9 +98,13 @@ function SearchPage() {
 
   const hasQuery = debounced.length >= 1 || genre.length >= 1;
 
-  const resultsQ = useQuery({
-    queryKey: ["search-page", debounced, genre, sort, duration, 24],
-    queryFn: () => runSearch({ data: { q: debounced, genre, limit: 24, sort, duration } }),
+  const PAGE_SIZE = 24;
+  const resultsQ = useInfiniteQuery({
+    queryKey: ["search-page", debounced, genre, sort, duration, PAGE_SIZE],
+    queryFn: ({ pageParam }) =>
+      runSearch({ data: { q: debounced, genre, limit: PAGE_SIZE, offset: pageParam as number, sort, duration } }),
+    initialPageParam: 0,
+    getNextPageParam: (last) => last.nextOffset ?? undefined,
     enabled: hasQuery,
     staleTime: 30_000,
   });
@@ -111,13 +115,32 @@ function SearchPage() {
     staleTime: 60_000,
   });
 
-  const results = resultsQ.data;
-  const tracks = results?.tracks ?? [];
-  const artists = results?.artists ?? [];
+  const pages = resultsQ.data?.pages ?? [];
+  const tracks = pages.flatMap((p) => p.tracks);
+  const artistsMap = new Map<string, typeof pages[number]["artists"][number]>();
+  for (const p of pages) for (const a of p.artists) if (!artistsMap.has(a.id)) artistsMap.set(a.id, a);
+  const artists = Array.from(artistsMap.values());
   const queue = tracks.map(dbTrackToTrack);
 
   const filteredTracks = tab === "artists" ? [] : tracks;
   const filteredArtists = tab === "songs" ? [] : artists;
+
+  // Infinite-scroll sentinel
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    const el = sentinelRef.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting && resultsQ.hasNextPage && !resultsQ.isFetchingNextPage) {
+          resultsQ.fetchNextPage();
+        }
+      },
+      { rootMargin: "600px 0px" },
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [resultsQ.hasNextPage, resultsQ.isFetchingNextPage, hasQuery, tab]);
 
   const submitSearch = (term: string) => {
     pushRecent(term);
