@@ -81,22 +81,19 @@ function relTime(iso: string) {
   return new Date(iso).toLocaleDateString();
 }
 
+type LibrarySearch = { tab: Tab; playlist: string | undefined; q: string };
+
 function LibraryPage() {
   const search = Route.useSearch();
   const navigate = useNavigate({ from: "/library" });
   const setTab = (t: Tab) =>
-    navigate({ search: (prev) => ({ ...prev, tab: t, playlist: undefined }), replace: true });
-  const setQuery = (q: string) => navigate({ search: (prev) => ({ ...prev, q }), replace: true });
+    navigate({ search: (prev: LibrarySearch) => ({ ...prev, tab: t, playlist: undefined }), replace: true });
+  const setQuery = (q: string) =>
+    navigate({ search: (prev: LibrarySearch) => ({ ...prev, q }), replace: true });
   const openPlaylist = (id: string) =>
-    navigate({ search: (prev) => ({ ...prev, playlist: id }), replace: false });
+    navigate({ search: (prev: LibrarySearch) => ({ ...prev, playlist: id }), replace: false });
   const closePlaylist = () =>
-    navigate({ search: (prev) => ({ ...prev, playlist: undefined }), replace: false });
-
-  const countsQ = useQuery({
-    queryKey: ["library", "counts"],
-    queryFn: () => useServerFn(getLibraryCounts)(),
-    // useServerFn cannot be called here – swap below
-  });
+    navigate({ search: (prev: LibrarySearch) => ({ ...prev, playlist: undefined }), replace: false });
 
   return (
     <LibraryInner
@@ -107,7 +104,6 @@ function LibraryPage() {
       setQuery={setQuery}
       openPlaylist={openPlaylist}
       closePlaylist={closePlaylist}
-      countsSuppress={countsQ}
     />
   );
 }
