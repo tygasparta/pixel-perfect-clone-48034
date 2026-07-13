@@ -3,10 +3,8 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { toast } from "sonner";
-import { Music2, Mail, Apple, Play, Headphones, Radio, Sparkles } from "lucide-react";
+import { Music2, Mail, Apple } from "lucide-react";
 import heroArtist from "@/assets/hero-artist.jpg";
-import artistTakura from "@/assets/artist-takura.jpg";
-import coverMafeelings from "@/assets/cover-mafeelings.jpg";
 import { BeatifyLogo } from "@/components/logo";
 
 export const Route = createFileRoute("/auth")({
@@ -142,150 +140,44 @@ type DesktopProps = {
 function DesktopAuth(p: DesktopProps) {
   return (
     <div className="relative hidden md:flex min-h-screen w-full overflow-hidden bg-background">
-      {/* Ambient background */}
-      <div className="pointer-events-none absolute inset-0">
-        <div className="absolute -left-40 -top-40 h-[520px] w-[520px] rounded-full bg-primary/25 blur-[140px]" />
-        <div className="absolute right-[-160px] top-[40%] h-[560px] w-[560px] rounded-full bg-[#FF7A45]/20 blur-[160px]" />
-        <div
-          className="absolute inset-0 opacity-[0.04]"
-          style={{
-            backgroundImage:
-              "linear-gradient(rgba(255,255,255,0.6) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.6) 1px, transparent 1px)",
-            backgroundSize: "56px 56px",
-          }}
-        />
-      </div>
+      {/* LEFT: quiet image pane */}
+      <aside className="relative hidden lg:block w-[52%]">
+        <img src={heroArtist} alt="" className="absolute inset-0 h-full w-full object-cover" />
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent to-background/70" />
 
-      {/* LEFT: editorial visual pane */}
-      <aside className="relative z-10 hidden lg:flex w-[54%] flex-col justify-between p-12 xl:p-16">
-        <div className="flex items-center justify-between">
+        <div className="relative z-10 flex h-full flex-col justify-between p-12 xl:p-16">
           <div className="flex items-center gap-3">
-            <BeatifyLogo size={52} className="drop-shadow-[0_6px_24px_rgba(255,68,51,0.6)]" />
-            <span className="text-lg font-black tracking-tight">Beatify</span>
+            <BeatifyLogo size={44} />
+            <span className="text-base font-black tracking-tight">Beatify</span>
           </div>
-          <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs text-muted-foreground backdrop-blur">
-            <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
-            </span>
-            12,483 listening now
-          </div>
-        </div>
 
-        {/* Hero collage */}
-        <div className="relative my-10 flex-1">
-          <div className="absolute inset-0 flex items-center justify-center">
-            {/* Big vinyl */}
-            <div className="relative">
-              <div className="relative h-[420px] w-[420px] xl:h-[500px] xl:w-[500px] rounded-full overflow-hidden shadow-[0_40px_120px_-20px_rgba(255,68,51,0.5)] ring-1 ring-white/10">
-                <img src={heroArtist} alt="" className="h-full w-full object-cover" />
-                <div className="absolute inset-0 rounded-full ring-[14px] ring-black/60" />
-                <div className="absolute left-1/2 top-1/2 h-24 w-24 -translate-x-1/2 -translate-y-1/2 rounded-full bg-black ring-4 ring-white/10 grid place-items-center">
-                  <div className="h-4 w-4 rounded-full bg-primary shadow-glow" />
-                </div>
-                {/* concentric grooves */}
-                <div className="pointer-events-none absolute inset-6 rounded-full border border-white/5" />
-                <div className="pointer-events-none absolute inset-16 rounded-full border border-white/5" />
-                <div className="pointer-events-none absolute inset-28 rounded-full border border-white/5" />
-              </div>
-
-              {/* Floating now-playing card */}
-              <div className="absolute -right-10 top-10 w-64 rounded-2xl border border-white/10 bg-black/60 p-3 backdrop-blur-xl shadow-card animate-[float_6s_ease-in-out_infinite]">
-                <div className="flex items-center gap-3">
-                  <img src={coverMafeelings} alt="" className="h-14 w-14 rounded-lg object-cover" />
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-semibold">Ma Feelings</p>
-                    <p className="truncate text-xs text-muted-foreground">Takura · Zimdancehall</p>
-                  </div>
-                  <button className="grid h-9 w-9 place-items-center rounded-full bg-gradient-primary shadow-glow">
-                    <Play className="h-4 w-4 text-primary-foreground" fill="currentColor" />
-                  </button>
-                </div>
-                <div className="mt-3 flex items-end gap-[3px] h-6">
-                  {Array.from({ length: 28 }).map((_, i) => (
-                    <span
-                      key={i}
-                      className="w-[3px] rounded-full bg-primary/80 wave-bar"
-                      style={{ height: `${20 + ((i * 37) % 80)}%`, animationDelay: `${i * 0.05}s` }}
-                    />
-                  ))}
-                </div>
-              </div>
-
-              {/* Floating artist card */}
-              <div className="absolute -left-14 bottom-8 w-56 rounded-2xl border border-white/10 bg-black/60 p-3 backdrop-blur-xl shadow-card animate-[float_7s_ease-in-out_infinite_0.5s]">
-                <div className="flex items-center gap-3">
-                  <img src={artistTakura} alt="" className="h-12 w-12 rounded-full object-cover ring-2 ring-primary/60" />
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-semibold">Featured Artist</p>
-                    <p className="truncate text-xs text-primary">+128% this week</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Tagline + stat row */}
-        <div>
-          <h2 className="text-4xl xl:text-5xl font-black leading-[0.95] tracking-tight">
-            Zimbabwe's music.<br />
-            <span className="text-gradient-primary">The world's stage.</span>
-          </h2>
-          <p className="mt-4 max-w-lg text-muted-foreground">
-            Stream Zimdancehall, Afro-Pop and Hip-Hop from the artists shaping the sound — and upload your own in minutes.
-          </p>
-          <div className="mt-8 grid grid-cols-3 gap-4 max-w-lg">
-            <Stat icon={<Headphones className="h-4 w-4" />} value="2.4M" label="Streams / mo" />
-            <Stat icon={<Radio className="h-4 w-4" />} value="18K" label="Artists" />
-            <Stat icon={<Sparkles className="h-4 w-4" />} value="63" label="Countries" />
+          <div>
+            <h2 className="text-4xl xl:text-5xl font-black leading-[1.05] tracking-tight max-w-md">
+              Zimbabwe's music.<br />
+              <span className="text-gradient-primary">The world's stage.</span>
+            </h2>
           </div>
         </div>
       </aside>
 
       {/* RIGHT: auth panel */}
-      <main className="relative z-10 flex w-full lg:w-[46%] items-center justify-center p-8 xl:p-12">
-        <div className="w-full max-w-md">
-          {/* Mobile-in-desktop fallback logo when left pane hidden */}
-          <div className="mb-8 flex items-center gap-3 lg:hidden">
-            <BeatifyLogo size={44} />
-            <span className="text-lg font-black tracking-tight">Beatify</span>
+      <main className="relative z-10 flex w-full lg:w-[48%] items-center justify-center p-8 xl:p-12">
+        <div className="w-full max-w-sm">
+          <div className="mb-10 flex items-center gap-3 lg:hidden">
+            <BeatifyLogo size={40} />
+            <span className="text-base font-black tracking-tight">Beatify</span>
           </div>
 
-          {/* Segmented toggle */}
-          <div className="mb-8 inline-flex rounded-full border border-white/10 bg-surface/60 p-1 backdrop-blur">
-            <button
-              onClick={() => p.setIsSignup(false)}
-              className={`rounded-full px-5 py-2 text-sm font-semibold transition ${
-                !p.isSignup ? "bg-gradient-primary text-primary-foreground shadow-glow" : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              Log in
-            </button>
-            <button
-              onClick={() => p.setIsSignup(true)}
-              className={`rounded-full px-5 py-2 text-sm font-semibold transition ${
-                p.isSignup ? "bg-gradient-primary text-primary-foreground shadow-glow" : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              Sign up
-            </button>
-          </div>
-
-          <h1 className="text-4xl font-black leading-tight tracking-tight">
-            {p.isSignup ? (
-              <>Join the <span className="text-gradient-primary">movement</span>.</>
-            ) : (
-              <>Welcome <span className="text-gradient-primary">back</span>.</>
-            )}
+          <h1 className="text-3xl font-bold tracking-tight">
+            {p.isSignup ? "Create your account" : "Sign in to Beatify"}
           </h1>
           <p className="mt-2 text-sm text-muted-foreground">
             {p.isSignup
-              ? "Create your Beatify account — it takes less than a minute."
-              : "Log in to keep the vibe going where you left off."}
+              ? "Join to stream, upload and connect."
+              : "Welcome back. Pick up where you left off."}
           </p>
 
-          {/* Social */}
           <div className="mt-8 grid grid-cols-2 gap-3">
             <button
               onClick={p.google}
@@ -350,12 +242,22 @@ function DesktopAuth(p: DesktopProps) {
             <button
               type="submit"
               disabled={p.loading}
-              className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-primary py-3.5 text-sm font-semibold text-primary-foreground shadow-glow transition hover:brightness-110 disabled:opacity-50"
+              className="mt-2 w-full rounded-xl bg-primary py-3.5 text-sm font-semibold text-primary-foreground transition hover:brightness-110 disabled:opacity-50"
             >
-              <Mail className="h-4 w-4" />
               {p.loading ? "Please wait…" : p.isSignup ? "Create account" : "Log in"}
             </button>
           </form>
+
+          <p className="mt-6 text-center text-sm text-muted-foreground">
+            {p.isSignup ? "Already have an account?" : "New to Beatify?"}{" "}
+            <button
+              type="button"
+              onClick={() => p.setIsSignup(!p.isSignup)}
+              className="font-semibold text-foreground hover:text-primary"
+            >
+              {p.isSignup ? "Log in" : "Sign up"}
+            </button>
+          </p>
 
           <p className="mt-6 text-center text-xs text-muted-foreground">
             By continuing you agree to Beatify's{" "}
@@ -371,24 +273,10 @@ function DesktopAuth(p: DesktopProps) {
         </div>
       </main>
 
-      <style>{`
-        @keyframes float {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-10px); }
-        }
-      `}</style>
     </div>
   );
 }
 
-function Stat({ icon, value, label }: { icon: React.ReactNode; value: string; label: string }) {
-  return (
-    <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 backdrop-blur">
-      <div className="flex items-center gap-2 text-primary">{icon}<span className="text-xs uppercase tracking-wider text-muted-foreground">{label}</span></div>
-      <p className="mt-1 text-2xl font-black">{value}</p>
-    </div>
-  );
-}
 
 function Field({
   label, value, onChange, type = "text", required, minLength, placeholder,
