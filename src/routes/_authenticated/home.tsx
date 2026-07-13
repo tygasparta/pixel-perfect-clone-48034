@@ -198,8 +198,31 @@ function DesktopHome() {
     new Map(demoTracks.map((t) => [t.artistId, { id: t.artistId, name: t.artist, cover: t.cover }])).values()
   ).slice(0, 5);
 
+  // Build the mix from recent listening (shuffled), falling back to trending/demo
+  const mixQueue = (() => {
+    const source = recent.length > 0 ? recent : trending.length > 0 ? trending : demoTracks;
+    const arr = source.slice(0, 12);
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  });
+
+  const isMixPlaying = isPlaying && current != null && continueListening.some((t) => t.id === current.id);
+
   const playMix = () => {
-    if (continueListening.length > 0) play(continueListening[0], continueListening);
+    if (isMixPlaying) {
+      toggle();
+      return;
+    }
+    if (current && continueListening.some((t) => t.id === current.id)) {
+      // Same mix, just resume
+      toggle();
+      return;
+    }
+    const queue = mixQueue();
+    if (queue.length > 0) play(queue[0], queue);
   };
 
   return (
@@ -242,8 +265,12 @@ function DesktopHome() {
                     onClick={playMix}
                     className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-bold text-primary-foreground shadow-glow transition hover:brightness-110"
                   >
-                    <Play className="h-4 w-4" fill="currentColor" />
-                    Play Mix
+                    {isMixPlaying ? (
+                      <Pause className="h-4 w-4" fill="currentColor" />
+                    ) : (
+                      <Play className="h-4 w-4" fill="currentColor" />
+                    )}
+                    {isMixPlaying ? "Pause Mix" : "Play Mix"}
                   </button>
                   <Link
                     to="/search"
@@ -395,6 +422,23 @@ function DesktopHome() {
               <button className="text-[11px] font-semibold text-primary hover:brightness-125">See All</button>
             </div>
             <ul className="space-y-3">
+              {current && (
+                <li className="flex items-start gap-3 rounded-xl bg-primary/10 p-2 ring-1 ring-primary/30">
+                  <img
+                    src={current.cover}
+                    alt=""
+                    className={`h-9 w-9 shrink-0 rounded-lg object-cover ${isPlaying ? "animate-pulse" : ""}`}
+                  />
+                  <div className="min-w-0 flex-1">
+                    <div className="text-[10px] font-black uppercase tracking-widest text-primary">
+                      {isPlaying ? "Now Playing" : "Paused"}
+                    </div>
+                    <div className="truncate text-[12px] font-bold">{current.title}</div>
+                    <div className="truncate text-[11px] text-muted-foreground">{current.artist}</div>
+                  </div>
+                  <EqBars active={isPlaying} />
+                </li>
+              )}
               {recentActivity.map((a, i) => (
                 <li key={i} className="flex items-start gap-3">
                   <div className={`grid h-8 w-8 shrink-0 place-items-center rounded-full ${a.tint}`}>
@@ -432,7 +476,7 @@ function DesktopHome() {
                     </div>
                     <div className="truncate text-[11px] text-muted-foreground">by {f.artist}</div>
                   </div>
-                  <EqBars />
+                  <EqBars active={isPlaying} />
                 </li>
               ))}
             </ul>
@@ -467,14 +511,17 @@ function NavArrow({ dir }: { dir: "left" | "right" }) {
   );
 }
 
-function EqBars() {
+function EqBars({ active = true }: { active?: boolean }) {
   return (
     <div className="flex items-end gap-0.5">
       {[0.6, 1, 0.5, 0.9].map((h, i) => (
         <span
           key={i}
-          className="w-0.5 rounded-full bg-primary"
-          style={{ height: `${h * 12}px`, animation: `pulse 1.2s ${i * 0.15}s ease-in-out infinite` }}
+          className={`w-0.5 rounded-full ${active ? "bg-primary" : "bg-muted-foreground/40"}`}
+          style={{
+            height: `${h * 12}px`,
+            animation: active ? `pulse 1.2s ${i * 0.15}s ease-in-out infinite` : undefined,
+          }}
         />
       ))}
     </div>
