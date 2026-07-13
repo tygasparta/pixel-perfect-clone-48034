@@ -52,21 +52,49 @@ const STEPS = [
   { n: 10, label: "Submit", icon: Send },
 ] as const;
 
-const SIDEBAR = [
-  { label: "Dashboard", icon: LayoutDashboard, to: "/home" as const },
-  { label: "Create Release", icon: Disc3, to: "/studio" as const, active: true },
-  { label: "Songs", icon: Music2, to: "/library" as const, tab: "Songs" },
-  { label: "Albums", icon: Package, to: "/library" as const, tab: "Albums" },
-  { label: "Videos", icon: Film, to: "/library" as const },
-  { label: "Drafts", icon: FileText, to: "/library" as const },
-  { label: "Analytics", icon: BarChart3, to: "/analytics" as const },
-  { label: "Revenue", icon: Wallet, to: "/wallet" as const },
-  { label: "Royalties", icon: Coins, to: "/wallet" as const },
-  { label: "Playlists", icon: ListMusic, to: "/library" as const, tab: "Playlists" },
-  { label: "Profile", icon: User, to: "/profile" as const },
-  { label: "Settings", icon: Settings, to: "/profile" as const },
-  { label: "Support", icon: LifeBuoy, to: "/notifications" as const },
+type SidebarItem = { label: string; icon: any; to: string; active?: boolean; tab?: string };
+type SidebarGroup = { id: string; label: string; items: SidebarItem[] };
+
+const SIDEBAR_GROUPS: SidebarGroup[] = [
+  {
+    id: "workspace",
+    label: "Workspace",
+    items: [
+      { label: "Dashboard", icon: LayoutDashboard, to: "/home" },
+      { label: "Create Release", icon: Disc3, to: "/studio", active: true },
+    ],
+  },
+  {
+    id: "catalog",
+    label: "Catalog",
+    items: [
+      { label: "Songs", icon: Music2, to: "/library", tab: "Songs" },
+      { label: "Albums", icon: Package, to: "/library", tab: "Albums" },
+      { label: "Videos", icon: Film, to: "/library" },
+      { label: "Drafts", icon: FileText, to: "/library" },
+      { label: "Playlists", icon: ListMusic, to: "/library", tab: "Playlists" },
+    ],
+  },
+  {
+    id: "insights",
+    label: "Insights",
+    items: [
+      { label: "Analytics", icon: BarChart3, to: "/analytics" },
+      { label: "Revenue", icon: Wallet, to: "/wallet" },
+      { label: "Royalties", icon: Coins, to: "/wallet" },
+    ],
+  },
+  {
+    id: "account",
+    label: "Account",
+    items: [
+      { label: "Profile", icon: User, to: "/profile" },
+      { label: "Settings", icon: Settings, to: "/profile" },
+      { label: "Support", icon: LifeBuoy, to: "/notifications" },
+    ],
+  },
 ];
+
 
 const RELEASE_TYPES: { id: ReleaseType; title: string; desc: string; icon: any; req: string }[] = [
   { id: "single", title: "Single", desc: "One track release. Perfect for lead singles.", icon: Music, req: "1 audio · 1 artwork" },
