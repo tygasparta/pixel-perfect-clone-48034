@@ -370,6 +370,23 @@ export const clearPlayHistory = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+export const removePlayHistoryEntry = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: { trackId: string; playedAt: string }) => ({
+    trackId: String(data.trackId),
+    playedAt: String(data.playedAt),
+  }))
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase
+      .from("plays")
+      .delete()
+      .eq("user_id", context.userId)
+      .eq("track_id", data.trackId)
+      .eq("played_at", data.playedAt);
+    if (error) throw error;
+    return { ok: true };
+  });
+
 // ────────────────────────────────────────────────────────────
 // Albums (derived: distinct album names across liked + played tracks)
 // ────────────────────────────────────────────────────────────

@@ -29,6 +29,7 @@ import type { Track } from "@/lib/mock-data";
 import { useInfiniteVisible } from "@/hooks/use-infinite-visible";
 import {
   clearPlayHistory,
+  removePlayHistoryEntry,
   deletePlaylist,
   getFollowedArtists,
   getLibraryCounts,
@@ -691,12 +692,33 @@ function HistoryTab({
 }) {
   const queryClient = useQueryClient();
   const doClear = useServerFn(clearPlayHistory);
+  const doRemove = useServerFn(removePlayHistoryEntry);
+  const [confirmClearOpen, setConfirmClearOpen] = useState(false);
+  const [removeTarget, setRemoveTarget] = useState<{ trackId: string; playedAt: string; title: string } | null>(null);
+
+  const invalidateHistory = () => {
+    queryClient.invalidateQueries({ queryKey: ["library"] });
+    queryClient.invalidateQueries({ queryKey: ["recentlyPlayed"] });
+  };
+
   const clearMut = useMutation({
     mutationFn: () => doClear(),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["library"] });
-      toast.success("History cleared");
+      invalidateHistory();
+      setConfirmClearOpen(false);
+      toast.success("Listening history cleared");
     },
+    onError: (e: Error) => toast.error(e.message || "Couldn't clear history"),
+  });
+
+  const removeMut = useMutation({
+    mutationFn: (v: { trackId: string; playedAt: string }) => doRemove({ data: v }),
+    onSuccess: () => {
+      invalidateHistory();
+      setRemoveTarget(null);
+      toast.success("Removed from history");
+    },
+    onError: (e: Error) => toast.error(e.message || "Couldn't remove entry"),
   });
 
   const filtered = useMemo(
@@ -732,10 +754,9 @@ function HistoryTab({
           Showing {filtered.length} of {entries.length}
         </div>
         <button
-          onClick={() => {
-            if (confirm("Clear your entire listening history?")) clearMut.mutate();
-          }}
-          className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold text-muted-foreground hover:bg-white/5 hover:text-destructive"
+          onClick={() => setConfirmClearOpen(true)}
+          disabled={clearMut.isPending}
+          className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold text-muted-foreground hover:bg-white/5 hover:text-destructive disabled:opacity-50"
         >
           <Trash2 className="h-3 w-3" /> Clear history
         </button>
@@ -747,7 +768,7 @@ function HistoryTab({
           return (
             <li
               key={`${t.id}-${t.played_at}`}
-              className="grid grid-cols-[40px_minmax(0,3fr)_minmax(0,2fr)_60px] items-center gap-3 border-b border-border/40 px-3 py-2 last:border-0 hover:bg-white/5"
+              className="group grid grid-cols-[40px_minmax(0,3fr)_minmax(0,2fr)_60px_32px] items-center gap-3 border-b border-border/40 px-3 py-2 last:border-0 hover:bg-white/5"
             >
               <button
                 onClick={() => (isCurrent ? toggle() : play(track, mapped))}
@@ -775,11 +796,70 @@ function HistoryTab({
               </div>
               <span className="hidden truncate text-xs text-muted-foreground md:inline">{relTime(t.played_at)}</span>
               <span className="text-right text-xs text-muted-foreground">{fmt(t.duration_seconds)}</span>
+              <button
+                onClick={() =>
+                  setRemoveTarget({ trackId: t.id, playedAt: t.played_at, title: t.title })
+                }
+                className="grid h-8 w-8 place-items-center rounded-full text-muted-foreground opacity-0 transition hover:bg-white/5 hover:text-destructive group-hover:opacity-100"
+                aria-label="Remove from history"
+                title="Remove from history"
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+              </button>
             </li>
           );
         })}
       </ul>
       <InfiniteSentinel sentinelRef={sentinelRef} hasMore={hasMore} />
+
+      <AlertDialog open={confirmClearOpen} onOpenChange={setConfirmClearOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Clear listening history?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This removes all {entries.length} entries from your history. Your liked songs, playlists, and follows are not affected.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => {
+                e.preventDefault();
+                clearMut.mutate();
+              }}
+              disabled={clearMut.isPending}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {clearMut.isPending ? "Clearing…" : "Clear history"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={removeTarget !== null} onOpenChange={(o) => !o && setRemoveTarget(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Remove from history?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Remove this play of "{removeTarget?.title}" from your listening history.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => {
+                e.preventDefault();
+                if (removeTarget)
+                  removeMut.mutate({ trackId: removeTarget.trackId, playedAt: removeTarget.playedAt });
+              }}
+              disabled={removeMut.isPending}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {removeMut.isPending ? "Removing…" : "Remove"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
