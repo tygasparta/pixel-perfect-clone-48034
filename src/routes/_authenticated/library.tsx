@@ -889,9 +889,149 @@ function PlaylistDetailView({ playlistId, onClose }: { playlistId: string; onClo
           subtitle="Search for songs and use the track menu to add them here."
         />
       ) : (
-        <TrackList tracks={mapped} queue={mapped} onRemove={(t) => removeMut.mutate(t.id)} />
+        <TrackList tracks={mapped} queue={mapped} onRemove={(t) => setRemoveTarget(t)} />
       )}
+
+      <EditPlaylistDialog
+        open={editOpen}
+        onOpenChange={setEditOpen}
+        initial={{ name: p.name, description: p.description ?? "", is_public: p.is_public }}
+        onSubmit={(values) =>
+          renameMut.mutate(values, {
+            onSuccess: () => {
+              toast.success("Playlist updated");
+              setEditOpen(false);
+            },
+          })
+        }
+        pending={renameMut.isPending}
+      />
+
+      <AlertDialog open={confirmDeleteOpen} onOpenChange={setConfirmDeleteOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete "{p.name}"?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete the playlist and remove all its tracks. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => deleteMut.mutate()}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={removeTarget !== null} onOpenChange={(o) => !o && setRemoveTarget(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Remove from playlist?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Remove "{removeTarget?.title}" from "{p.name}"?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (removeTarget) removeMut.mutate(removeTarget.id);
+                setRemoveTarget(null);
+              }}
+            >
+              Remove
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
+  );
+}
+
+function EditPlaylistDialog({
+  open,
+  onOpenChange,
+  initial,
+  onSubmit,
+  pending,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  initial: { name: string; description: string; is_public: boolean };
+  onSubmit: (values: { name: string; description: string; is_public: boolean }) => void;
+  pending: boolean;
+}) {
+  const [name, setName] = useState(initial.name);
+  const [description, setDescription] = useState(initial.description);
+  const [isPublic, setIsPublic] = useState(initial.is_public);
+
+  // Reset when reopened
+  useMemo(() => {
+    if (open) {
+      setName(initial.name);
+      setDescription(initial.description);
+      setIsPublic(initial.is_public);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
+
+  const trimmed = name.trim();
+  const canSave = trimmed.length > 0 && !pending;
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Edit playlist</DialogTitle>
+          <DialogDescription>Update the name, description, and visibility.</DialogDescription>
+        </DialogHeader>
+        <div className="space-y-4">
+          <div className="space-y-1.5">
+            <Label htmlFor="pl-name">Name</Label>
+            <Input
+              id="pl-name"
+              value={name}
+              maxLength={60}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="My playlist"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="pl-desc">Description</Label>
+            <Textarea
+              id="pl-desc"
+              value={description}
+              maxLength={240}
+              rows={3}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="What's this playlist about?"
+            />
+          </div>
+          <div className="flex items-center justify-between rounded-lg border border-border/60 bg-surface/60 px-3 py-2.5">
+            <div>
+              <div className="text-sm font-semibold">Public</div>
+              <div className="text-xs text-muted-foreground">Anyone can find and view this playlist</div>
+            </div>
+            <Switch checked={isPublic} onCheckedChange={setIsPublic} />
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="ghost" onClick={() => onOpenChange(false)} disabled={pending}>
+            Cancel
+          </Button>
+          <Button
+            onClick={() => canSave && onSubmit({ name: trimmed, description: description.trim(), is_public: isPublic })}
+            disabled={!canSave}
+          >
+            {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : "Save changes"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 
