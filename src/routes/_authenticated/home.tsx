@@ -265,8 +265,12 @@ function DesktopHome() {
                     onClick={playMix}
                     className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-bold text-primary-foreground shadow-glow transition hover:brightness-110"
                   >
-                    <Play className="h-4 w-4" fill="currentColor" />
-                    Play Mix
+                    {isMixPlaying ? (
+                      <Pause className="h-4 w-4" fill="currentColor" />
+                    ) : (
+                      <Play className="h-4 w-4" fill="currentColor" />
+                    )}
+                    {isMixPlaying ? "Pause Mix" : "Play Mix"}
                   </button>
                   <Link
                     to="/search"
