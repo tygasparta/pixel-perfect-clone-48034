@@ -5,22 +5,29 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 // Server-enforced limits
 export const UPLOAD_LIMITS = {
   audio: {
-    maxBytes: 50 * 1024 * 1024, // 50 MB
-    minDurationSec: 10,
-    maxDurationSec: 15 * 60, // 15 minutes
+    maxBytes: 300 * 1024 * 1024, // 300 MB — room for full-quality MP3/WAV/FLAC
+    minDurationSec: 5,
+    maxDurationSec: 60 * 60, // up to 60 minutes
     allowedMime: [
       "audio/mpeg",
       "audio/mp3",
+      "audio/mpeg3",
+      "audio/x-mpeg-3",
+      "audio/mpegurl",
       "audio/wav",
       "audio/x-wav",
       "audio/wave",
+      "audio/vnd.wave",
       "audio/flac",
       "audio/x-flac",
       "audio/aac",
+      "audio/aacp",
       "audio/mp4",
       "audio/x-m4a",
       "audio/m4a",
       "audio/ogg",
+      "audio/vorbis",
+      "audio/opus",
       "audio/webm",
     ],
   },
