@@ -77,3 +77,60 @@ export const getRecentlyPlayed = createServerFn({ method: "GET" })
       .map((id) => byId.get(id))
       .filter((t): t is NonNullable<typeof t> => Boolean(t)) as RecTrack[];
   });
+
+export type TopArtist = {
+  id: string;
+  name: string;
+  cover: string | null;
+  plays: number;
+  tracks: number;
+};
+
+/** Top artists ranked by aggregate play_count across their published tracks. */
+export const getTopArtists = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: { limit?: number } | undefined) => ({ limit: clampLimit(data?.limit, 5) }))
+  .handler(async ({ data, context }): Promise<TopArtist[]> => {
+    const { data: rows, error } = await context.supabase
+      .from("tracks")
+      .select("artist_id, artist_name, cover_url, play_count")
+      .eq("is_published", true);
+    if (error) throw error;
+
+    const agg = new Map<string, TopArtist>();
+    for (const r of rows ?? []) {
+      if (!r.artist_id) continue;
+      const cur = agg.get(r.artist_id);
+      if (cur) {
+        cur.plays += r.play_count ?? 0;
+        cur.tracks += 1;
+        if (!cur.cover && r.cover_url) cur.cover = r.cover_url;
+      } else {
+        agg.set(r.artist_id, {
+          id: r.artist_id,
+          name: r.artist_name,
+          cover: r.cover_url ?? null,
+          plays: r.play_count ?? 0,
+          tracks: 1,
+        });
+      }
+    }
+
+    const artists = Array.from(agg.values()).sort((a, b) => b.plays - a.plays).slice(0, data.limit);
+
+    // Enrich with profile avatars when available
+    const ids = artists.map((a) => a.id);
+    if (ids.length > 0) {
+      const { data: profiles } = await context.supabase
+        .from("profiles")
+        .select("id, display_name, avatar_url")
+        .in("id", ids);
+      const byId = new Map((profiles ?? []).map((p) => [p.id, p] as const));
+      for (const a of artists) {
+        const p = byId.get(a.id);
+        if (p?.avatar_url) a.cover = p.avatar_url;
+        if (p?.display_name) a.name = p.display_name;
+      }
+    }
+    return artists;
+  });
