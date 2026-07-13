@@ -1,11 +1,22 @@
+import { useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { Play, Pause, Heart, ListPlus, ListStart, User } from "lucide-react";
+import { Play, Pause, Heart, ListMusic, ListPlus, ListStart, Plus, User } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { usePlayer } from "@/lib/player";
 import { getLikedIds, toggleLike } from "@/lib/recommendations.functions";
+import { addTrackToPlaylist, listMyPlaylists } from "@/lib/library.functions";
+import { CreatePlaylistDialog } from "@/components/create-playlist-dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { isDbTrackId } from "@/lib/track-mapper";
 import type { Track } from "@/lib/mock-data";
 
