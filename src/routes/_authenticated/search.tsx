@@ -285,7 +285,7 @@ function SearchPage() {
           )}
 
           {!resultsQ.isLoading &&
-            results &&
+            pages.length > 0 &&
             filteredTracks.length === 0 &&
             filteredArtists.length === 0 && (
               <div className="py-16 text-center">
