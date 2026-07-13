@@ -45,7 +45,6 @@ function ArtistPage() {
           avatar_url: artist.cover ?? null,
           monthly_listeners: 0,
           is_verified: false,
-          followed_at: new Date().toISOString(),
         };
         queryClient.setQueryData<Followed>(FOLLOWED_KEY, (old) => [optimistic, ...(old ?? [])]);
       }
