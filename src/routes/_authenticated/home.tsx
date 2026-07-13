@@ -476,7 +476,7 @@ function DesktopHome() {
                     </div>
                     <div className="truncate text-[11px] text-muted-foreground">by {f.artist}</div>
                   </div>
-                  <EqBars />
+                  <EqBars active={isPlaying} />
                 </li>
               ))}
             </ul>
