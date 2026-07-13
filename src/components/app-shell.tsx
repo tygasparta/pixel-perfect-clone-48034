@@ -137,15 +137,9 @@ export function AppShell({ children }: { children: ReactNode }) {
                 </span>
               </div>
             </Link>
-            <div className="mt-3 border-t border-border/50 pt-3">
-              <div className="mb-1 px-3 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Account</div>
-              <NavGroup items={desktopAccount} pathname={pathname} searchStr={searchStr} compact />
-            </div>
           </div>
         </aside>
-            </Link>
-          </div>
-        </aside>
+
         <div className="flex min-w-0 flex-1 flex-col">
           <header className="sticky top-0 z-30 flex h-14 items-center justify-end gap-3 border-b border-border/60 bg-background/70 px-6 backdrop-blur-xl">
             <DropdownMenu>
