@@ -422,6 +422,23 @@ function DesktopHome() {
               <button className="text-[11px] font-semibold text-primary hover:brightness-125">See All</button>
             </div>
             <ul className="space-y-3">
+              {current && (
+                <li className="flex items-start gap-3 rounded-xl bg-primary/10 p-2 ring-1 ring-primary/30">
+                  <img
+                    src={current.cover}
+                    alt=""
+                    className={`h-9 w-9 shrink-0 rounded-lg object-cover ${isPlaying ? "animate-pulse" : ""}`}
+                  />
+                  <div className="min-w-0 flex-1">
+                    <div className="text-[10px] font-black uppercase tracking-widest text-primary">
+                      {isPlaying ? "Now Playing" : "Paused"}
+                    </div>
+                    <div className="truncate text-[12px] font-bold">{current.title}</div>
+                    <div className="truncate text-[11px] text-muted-foreground">{current.artist}</div>
+                  </div>
+                  <EqBars active={isPlaying} />
+                </li>
+              )}
               {recentActivity.map((a, i) => (
                 <li key={i} className="flex items-start gap-3">
                   <div className={`grid h-8 w-8 shrink-0 place-items-center rounded-full ${a.tint}`}>
